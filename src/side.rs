@@ -1,3 +1,5 @@
+use std::ops::{Index, IndexMut};
+
 #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Debug)]
 pub enum Color {
     White,
@@ -25,7 +27,7 @@ impl Color {
     }
 }
 
-#[derive(Clone, Copy, Default, Eq, Hash, Debug)]
+#[derive(Clone, Default, Eq, Hash, Debug)]
 pub struct Side {
     pub colors: [[Color; 3]; 3],
 }
@@ -40,6 +42,20 @@ impl PartialEq for Side {
             }
         }
         return true;
+    }
+}
+
+impl Index<usize> for Side {
+    type Output = [Color; 3];
+
+    fn index(&self, x: usize) -> &Self::Output {
+        &self.colors[x]
+    }
+}
+
+impl IndexMut<usize> for Side {
+    fn index_mut(&mut self, x: usize) -> &mut Self::Output {
+        &mut self.colors[x]
     }
 }
 
@@ -66,87 +82,23 @@ impl Side {
      * rot'(x, y) = (2-y, x)
      */
 
-    pub fn rotate_clockwise(&self) -> Side {
+    pub fn rotate_clockwise(&mut self) {
         let mut new_colors: [[Color; 3]; 3] = Default::default();
         for x in 0..3 {
             for y in 0..3 {
                 new_colors[y][2 - x] = self.colors[x][y];
             }
         }
-        return Side { colors: new_colors };
+        self.colors = new_colors;
     }
 
-    pub fn rotate_counterclockwise(&self) -> Side {
+    pub fn rotate_counterclockwise(&mut self) {
         let mut new_colors: [[Color; 3]; 3] = Default::default();
         for x in 0..3 {
             for y in 0..3 {
                 new_colors[2 - y][x] = self.colors[x][y];
             }
         }
-        return Side { colors: new_colors };
-    }
-
-    pub fn top(&self) -> [Color; 3] {
-        let mut colors: [Color; 3] = Default::default();
-        for x in 0..3 {
-            colors[x] = self.colors[x][2];
-        }
-        return colors;
-    }
-
-    pub fn left(&self) -> [Color; 3] {
-        let mut colors: [Color; 3] = Default::default();
-        for y in 0..3 {
-            colors[y] = self.colors[0][y];
-        }
-        return colors;
-    }
-
-    pub fn bottom(&self) -> [Color; 3] {
-        let mut colors: [Color; 3] = Default::default();
-        for x in 0..3 {
-            colors[x] = self.colors[x][0];
-        }
-        return colors;
-    }
-
-    pub fn right(&self) -> [Color; 3] {
-        let mut colors: [Color; 3] = Default::default();
-        for y in 0..3 {
-            colors[y] = self.colors[2][y];
-        }
-        return colors;
-    }
-
-    pub fn replace_top(&self, colors: &[Color; 3]) -> Side {
-        let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
-        for x in 0..3 {
-            new_colors[x][2] = colors[x];
-        }
-        return Side { colors: new_colors };
-    }
-
-    pub fn replace_left(&self, colors: &[Color; 3]) -> Side {
-        let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
-        for y in 0..3 {
-            new_colors[0][y] = colors[y];
-        }
-        return Side { colors: new_colors };
-    }
-
-    pub fn replace_bottom(&self, colors: &[Color; 3]) -> Side {
-        let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
-        for x in 0..3 {
-            new_colors[x][0] = colors[x];
-        }
-        return Side { colors: new_colors };
-    }
-
-    pub fn replace_right(&self, colors: &[Color; 3]) -> Side {
-        let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
-        for y in 0..3 {
-            new_colors[2][y] = colors[y];
-        }
-        return Side { colors: new_colors };
+        self.colors = new_colors;
     }
 }
