@@ -8,30 +8,23 @@ pub struct Solver {
     pub found_solutions: HashSet<Vec<Rotation>>,
     pub initial_state: CubeState,
     pub desired_state: CubeState,
-    pub min_moves: u8,
-    pub max_moves: u8,
+    pub move_count: u8,
 }
 
 impl Solver {
-    pub fn new(
-        initial_state: &CubeState,
-        desired_state: &CubeState,
-        min_moves: u8,
-        max_moves: u8,
-    ) -> Solver {
+    pub fn new(initial_state: &CubeState, desired_state: &CubeState, move_count: u8) -> Solver {
         Solver {
             middle_states: HashMap::new(),
             found_solutions: HashSet::new(),
             initial_state: initial_state.clone(),
             desired_state: desired_state.clone(),
-            min_moves,
-            max_moves,
+            move_count,
         }
     }
 
     /*
      * Goes through all possible "rotation paths" in a DFS manner,
-     * stops when reaching a solution or path.len() == (max_moves+1)/2 (meet in the middle)
+     * stops when reaching a solution or path.len() == (move_count+1)/2 (meet in the middle)
      */
     fn first_pass_(
         &mut self,
@@ -40,10 +33,7 @@ impl Solver {
         path: &mut Vec<Rotation>,
     ) {
         //dbg!(state);
-        if *state == self.desired_state
-            && path.len() as u8 >= self.min_moves
-            && path.len() as u8 <= self.max_moves
-        {
+        if *state == self.desired_state && path.len() as u8 == self.move_count {
             self.found_solutions.insert(path.clone());
             return;
         }
@@ -52,7 +42,7 @@ impl Solver {
             return;
         }
 
-        if path.len() as u8 == (self.max_moves + 1) / 2 {
+        if path.len() as u8 == (self.move_count + 1) / 2 {
             self.middle_states.insert(state.clone(), path.clone());
             return;
         }
@@ -104,7 +94,7 @@ impl Solver {
             return;
         }
 
-        if path.len() as u8 > self.max_moves / 2 {
+        if path.len() as u8 > self.move_count / 2 {
             return;
         }
 
@@ -112,8 +102,8 @@ impl Solver {
 
         match optional_path {
             Some(found_path) => {
-                if ((found_path.len() as u8 + path.len() as u8) < self.min_moves)
-                    || ((found_path.len() as u8 + path.len() as u8) > self.max_moves)
+                if ((found_path.len() as u8 + path.len() as u8) < self.move_count)
+                    || ((found_path.len() as u8 + path.len() as u8) > self.move_count)
                 {
                     return;
                 }
