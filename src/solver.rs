@@ -41,12 +41,19 @@ impl Solver {
         path: &mut Vec<Rotation>,
     ) {
         //dbg!(state);
-        if state == self.desired_state {
+        if state == self.desired_state
+            && path.len() as u8 >= self.min_moves
+            && path.len() as u8 <= self.max_moves
+        {
             self.found_solutions.insert(path.clone());
             return;
         }
 
-        if path.len() as u8 >= cmp::max(1, self.max_moves / 2) {
+        if state == self.desired_state {
+            return;
+        }
+
+        if path.len() as u8 > cmp::max(1, self.max_moves / 2) {
             self.middle_states.insert(state, path.clone());
             return;
         }
@@ -56,7 +63,7 @@ impl Solver {
         for rotation in Rotation::iter() {
             match path.last() {
                 Some(prev_rot) => {
-                    if *prev_rot == rotation {
+                    if *prev_rot == rotation.reverse() {
                         continue;
                     }
                 }
@@ -94,7 +101,7 @@ impl Solver {
             return;
         }
 
-        if path.len() as u8 >= (self.max_moves + 1) / 2 {
+        if path.len() as u8 > (self.max_moves + 1) / 2 {
             return;
         }
 
@@ -102,6 +109,11 @@ impl Solver {
 
         match optional_path {
             Some(found_path) => {
+                if ((found_path.len() as u8 + path.len() as u8) < self.min_moves)
+                    || ((found_path.len() as u8 + path.len() as u8) > self.max_moves)
+                {
+                    return;
+                }
                 let mut complete_path = found_path.clone();
                 for idx in (0..path.len()).rev() {
                     complete_path.push(path[idx]);
@@ -117,7 +129,7 @@ impl Solver {
         for rotation in Rotation::iter() {
             match path.last() {
                 Some(prev_rot) => {
-                    if *prev_rot == rotation {
+                    if *prev_rot == rotation.reverse() {
                         continue;
                     }
                 }
