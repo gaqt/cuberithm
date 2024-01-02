@@ -105,6 +105,8 @@ fn main() {
     let min_moves = get_min_moves(&args);
     let max_moves = get_max_moves(&args);
 
+    dbg!(initial_state);
+
     let mut solver = Solver::new(&initial_state, &desired_state, min_moves, max_moves);
 
     solver.solve();
@@ -119,4 +121,78 @@ fn main() {
         println!();
     }
     println!("Done.");
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{cube::CubeState, get_cube_state, rotation::Rotation};
+
+    fn solved_cube() -> CubeState {
+        return get_cube_state(&String::from(
+            "WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY",
+        ));
+    }
+
+    #[test]
+    fn check_cube_rotations() {
+        let u_state = get_cube_state(&String::from(
+            "WWWWWWWWWOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOYYYYYYYYY",
+        ));
+        assert_eq!(u_state, solved_cube().rotate(Rotation::U));
+
+        let up_state = get_cube_state(&String::from(
+            "WWWWWWWWWOOOOOOBBBGGGGGGOOORRRRRRGGGBBBBBBRRRYYYYYYYYY",
+        ));
+        assert_eq!(up_state, solved_cube().rotate(Rotation::Up));
+
+        let l_state = get_cube_state(&String::from(
+            "BWWBWWBWWOOOOOOOOOWGGWGGWGGRRRRRRRRRBBYBBYBBYGYYGYYGYY",
+        ));
+        assert_eq!(l_state, solved_cube().rotate(Rotation::L));
+
+        let lp_state = get_cube_state(&String::from(
+            "GWWGWWGWWOOOOOOOOOYGGYGGYGGRRRRRRRRRBBWBBWBBWBYYBYYBYY",
+        ));
+        assert_eq!(lp_state, solved_cube().rotate(Rotation::Lp));
+
+        let f_state = get_cube_state(&String::from(
+            "OOOWWWWWWOOYOOYOOYGGGGGGGGGWRRWRRWRRBBBBBBBBBYYYYYYRRR",
+        ));
+        assert_eq!(f_state, solved_cube().rotate(Rotation::F));
+
+        let fp_state = get_cube_state(&String::from(
+            "RRRWWWWWWOOWOOWOOWGGGGGGGGGYRRYRRYRRBBBBBBBBBYYYYYYOOO",
+        ));
+        assert_eq!(fp_state, solved_cube().rotate(Rotation::Fp));
+
+        let r_state = get_cube_state(&String::from(
+            "WWGWWGWWGOOOOOOOOOGGYGGYGGYRRRRRRRRRWBBWBBWBBYYBYYBYYB",
+        ));
+        assert_eq!(r_state, solved_cube().rotate(Rotation::R));
+
+        let rp_state = get_cube_state(&String::from(
+            "WWBWWBWWBOOOOOOOOOGGWGGWGGWRRRRRRRRRYBBYBBYBBYYGYYGYYG",
+        ));
+        assert_eq!(rp_state, solved_cube().rotate(Rotation::Rp));
+
+        let b_state = get_cube_state(&String::from(
+            "WWWWWWRRRWOOWOOWOOGGGGGGGGGRRYRRYRRYBBBBBBBBBOOOYYYYYY",
+        ));
+        assert_eq!(b_state, solved_cube().rotate(Rotation::B));
+
+        let bp_state = get_cube_state(&String::from(
+            "WWWWWWOOOYOOYOOYOOGGGGGGGGGRRWRRWRRWBBBBBBBBBRRRYYYYYY",
+        ));
+        assert_eq!(bp_state, solved_cube().rotate(Rotation::Bp));
+
+        let d_state = get_cube_state(&String::from(
+            "WWWWWWWWWBBBOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBYYYYYYYYY",
+        ));
+        assert_eq!(d_state, solved_cube().rotate(Rotation::D));
+
+        let dp_state = get_cube_state(&String::from(
+            "WWWWWWWWWGGGOOOOOORRRGGGGGGBBBRRRRRROOOBBBBBBYYYYYYYYY",
+        ));
+        assert_eq!(dp_state, solved_cube().rotate(Rotation::Dp));
+    }
 }
