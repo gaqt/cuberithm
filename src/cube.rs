@@ -1,6 +1,6 @@
 use crate::{rotation::Rotation, side::Side};
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct CubeState {
     pub top: Side,
     pub left: Side,
@@ -10,108 +10,129 @@ pub struct CubeState {
     pub bottom: Side,
 }
 
-/*
- * TODO: implement non copying cube state for better DFS perfomance
- */
 impl CubeState {
-    pub fn rotate(&self, rotation: Rotation) -> CubeState {
+    pub fn rotate(&mut self, rotation: Rotation) {
         match rotation {
-            Rotation::U => CubeState {
-                top: self.top.rotate_clockwise(),
-                left: self.left.replace_top(&self.front.top()),
-                front: self.front.replace_top(&self.right.top()),
-                right: self.right.replace_top(&self.back.top()),
-                back: self.back.replace_top(&self.left.top()),
-                bottom: self.bottom,
-            },
-            Rotation::Up => CubeState {
-                top: self.top.rotate_counterclockwise(),
-                left: self.left.replace_top(&self.back.top()),
-                front: self.front.replace_top(&self.left.top()),
-                right: self.right.replace_top(&self.front.top()),
-                back: self.back.replace_top(&self.right.top()),
-                bottom: self.bottom,
-            },
-            Rotation::L => CubeState {
-                top: self.top.replace_left(&self.back.right()),
-                left: self.left.rotate_clockwise(),
-                front: self.front.replace_left(&self.top.left()),
-                right: self.right,
-                back: self.back.replace_right(&self.bottom.left()),
-                bottom: self.bottom.replace_left(&self.front.left()),
-            },
-            Rotation::Lp => CubeState {
-                top: self.top.replace_left(&self.front.left()),
-                left: self.left.rotate_counterclockwise(),
-                front: self.front.replace_left(&self.bottom.left()),
-                right: self.right,
-                back: self.back.replace_right(&self.top.left()),
-                bottom: self.bottom.replace_left(&self.back.right()),
-            },
-            Rotation::F => CubeState {
-                top: self.top.replace_bottom(&self.left.right()),
-                left: self.left.replace_right(&self.bottom.top()),
-                front: self.front.rotate_clockwise(),
-                right: self.right.replace_left(&self.top.bottom()),
-                back: self.back,
-                bottom: self.bottom.replace_top(&self.right.left()),
-            },
-            Rotation::Fp => CubeState {
-                top: self.top.replace_bottom(&self.right.left()),
-                left: self.left.replace_right(&self.top.bottom()),
-                front: self.front.rotate_counterclockwise(),
-                right: self.right.replace_left(&self.bottom.top()),
-                back: self.back,
-                bottom: self.bottom.replace_top(&self.left.right()),
-            },
-            Rotation::R => CubeState {
-                top: self.top.replace_right(&self.front.right()),
-                left: self.left,
-                front: self.front.replace_right(&self.bottom.right()),
-                right: self.right.rotate_clockwise(),
-                back: self.back.replace_left(&self.top.right()),
-                bottom: self.bottom.replace_right(&self.back.left()),
-            },
-            Rotation::Rp => CubeState {
-                top: self.top.replace_right(&self.back.left()),
-                left: self.left,
-                front: self.front.replace_right(&self.top.right()),
-                right: self.right.rotate_counterclockwise(),
-                back: self.back.replace_left(&self.bottom.right()),
-                bottom: self.bottom.replace_right(&self.front.right()),
-            },
-            Rotation::B => CubeState {
-                top: self.top.replace_top(&self.right.right()),
-                left: self.left.replace_left(&self.top.top()),
-                front: self.front,
-                right: self.right.replace_right(&self.bottom.bottom()),
-                back: self.back.rotate_clockwise(),
-                bottom: self.bottom.replace_bottom(&self.left.left()),
-            },
-            Rotation::Bp => CubeState {
-                top: self.top.replace_top(&self.left.left()),
-                left: self.left.replace_left(&self.bottom.bottom()),
-                front: self.front,
-                right: self.right.replace_right(&self.top.top()),
-                back: self.back.rotate_counterclockwise(),
-                bottom: self.bottom.replace_bottom(&self.right.right()),
-            },
-            Rotation::D => CubeState {
-                top: self.top,
-                left: self.left.replace_bottom(&self.back.bottom()),
-                front: self.front.replace_bottom(&self.left.bottom()),
-                right: self.right.replace_bottom(&self.front.bottom()),
-                back: self.back.replace_bottom(&self.right.bottom()),
-                bottom: self.bottom.rotate_clockwise(),
-            },
-            Rotation::Dp => CubeState {
-                top: self.top,
-                left: self.left.replace_bottom(&self.front.bottom()),
-                front: self.front.replace_bottom(&self.right.bottom()),
-                right: self.right.replace_bottom(&self.back.bottom()),
-                back: self.back.replace_bottom(&self.left.bottom()),
-                bottom: self.bottom.rotate_counterclockwise(),
-            },
+            Rotation::U => {
+                self.top.rotate_clockwise();
+                for x in 0..3 {
+                    let aux = self.left[x][2];
+                    self.left[x][2] = self.front[x][2];
+                    self.front[x][2] = self.right[x][2];
+                    self.right[x][2] = self.back[x][2];
+                    self.back[x][2] = aux;
+                }
+            }
+            Rotation::Up => {
+                self.top.rotate_counterclockwise();
+                for x in 0..3 {
+                    let aux = self.left[x][2];
+                    self.left[x][2] = self.back[x][2];
+                    self.back[x][2] = self.right[x][2];
+                    self.right[x][2] = self.front[x][2];
+                    self.front[x][2] = aux;
+                }
+            }
+            Rotation::L => {
+                self.left.rotate_clockwise();
+                for i in 0..3 {
+                    let aux = self.top[0][i];
+                    self.top[0][i] = self.back[2][2 - i];
+                    self.back[2][2 - i] = self.bottom[0][i];
+                    self.bottom[0][i] = self.front[0][i];
+                    self.front[0][i] = aux;
+                }
+            }
+            Rotation::Lp => {
+                self.left.rotate_counterclockwise();
+                for i in 0..3 {
+                    let aux = self.top[0][i];
+                    self.top[0][i] = self.front[0][i];
+                    self.front[0][i] = self.bottom[0][i];
+                    self.bottom[0][i] = self.back[2][2 - i];
+                    self.back[2][2 - i] = aux;
+                }
+            }
+            Rotation::F => {
+                self.front.rotate_clockwise();
+                for i in 0..3 {
+                    let aux = self.top[i][0];
+                    self.top[i][0] = self.left[2][i];
+                    self.left[2][i] = self.bottom[2 - i][2];
+                    self.bottom[2 - i][2] = self.right[0][2 - i];
+                    self.right[0][2 - i] = aux;
+                }
+            }
+            Rotation::Fp => {
+                self.front.rotate_counterclockwise();
+                for i in 0..3 {
+                    let aux = self.top[i][0];
+                    self.top[i][0] = self.right[0][2 - i];
+                    self.right[0][2 - i] = self.bottom[2 - i][2];
+                    self.bottom[2 - i][2] = self.left[2][i];
+                    self.left[2][i] = aux;
+                }
+            }
+            Rotation::R => {
+                self.right.rotate_clockwise();
+                for i in 0..3 {
+                    let aux = self.top[2][i];
+                    self.top[2][i] = self.front[2][i];
+                    self.front[2][i] = self.bottom[2][i];
+                    self.bottom[2][i] = self.back[0][2 - i];
+                    self.back[0][2 - i] = aux;
+                }
+            }
+            Rotation::Rp => {
+                self.right.rotate_counterclockwise();
+                for i in 0..3 {
+                    let aux = self.top[2][i];
+                    self.top[2][i] = self.back[0][2 - i];
+                    self.back[0][2 - i] = self.bottom[2][i];
+                    self.bottom[2][i] = self.front[2][i];
+                    self.front[2][i] = aux;
+                }
+            }
+            Rotation::B => {
+                self.back.rotate_clockwise();
+                for i in 0..3 {
+                    let aux = self.top[i][2];
+                    self.top[i][2] = self.right[2][2 - i];
+                    self.right[2][2 - i] = self.bottom[2 - i][0];
+                    self.bottom[2 - i][0] = self.left[0][i];
+                    self.left[0][i] = aux;
+                }
+            }
+            Rotation::Bp => {
+                self.back.rotate_counterclockwise();
+                for i in 0..3 {
+                    let aux = self.top[i][2];
+                    self.top[i][2] = self.left[0][i];
+                    self.left[0][i] = self.bottom[2 - i][0];
+                    self.bottom[2 - i][0] = self.right[2][2 - i];
+                    self.right[2][2 - i] = aux;
+                }
+            }
+            Rotation::D => {
+                self.bottom.rotate_clockwise();
+                for x in 0..3 {
+                    let aux = self.front[x][0];
+                    self.front[x][0] = self.left[x][0];
+                    self.left[x][0] = self.back[x][0];
+                    self.back[x][0] = self.right[x][0];
+                    self.right[x][0] = aux;
+                }
+            }
+            Rotation::Dp => {
+                self.bottom.rotate_counterclockwise();
+                for x in 0..3 {
+                    let aux = self.front[x][0];
+                    self.front[x][0] = self.right[x][0];
+                    self.right[x][0] = self.back[x][0];
+                    self.back[x][0] = self.left[x][0];
+                    self.left[x][0] = aux;
+                }
+            }
         }
     }
 }
