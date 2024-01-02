@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Debug)]
 pub enum Color {
     White,
     Orange,
@@ -10,9 +10,37 @@ pub enum Color {
     Unspecified,
 }
 
-#[derive(Clone, Copy, Default)]
+impl Color {
+    pub fn from_char(c: char) -> Color {
+        match c {
+            'W' => Color::White,
+            'O' => Color::Orange,
+            'G' => Color::Green,
+            'R' => Color::Red,
+            'B' => Color::Blue,
+            'Y' => Color::Yellow,
+            'N' => Color::Unspecified,
+            _ => panic!("Invalid color"),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Default, Eq, Hash, Debug)]
 pub struct Side {
-    colors: [[Color; 3]; 3],
+    pub colors: [[Color; 3]; 3],
+}
+
+impl PartialEq for Side {
+    fn eq(&self, other: &Self) -> bool {
+        for x in 0..3 {
+            for y in 0..3 {
+                if self.colors[x][y] != other.colors[x][y] {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
 
 impl Side {
@@ -38,7 +66,7 @@ impl Side {
      * rot'(x, y) = (2-y, x)
      */
 
-    pub fn rotate_clockwise(&mut self) -> Side {
+    pub fn rotate_clockwise(&self) -> Side {
         let mut new_colors: [[Color; 3]; 3] = Default::default();
         for x in 0..3 {
             for y in 0..3 {
@@ -48,7 +76,7 @@ impl Side {
         return Side { colors: new_colors };
     }
 
-    pub fn rotate_counterclockwise(&mut self) -> Side {
+    pub fn rotate_counterclockwise(&self) -> Side {
         let mut new_colors: [[Color; 3]; 3] = Default::default();
         for x in 0..3 {
             for y in 0..3 {
@@ -58,7 +86,7 @@ impl Side {
         return Side { colors: new_colors };
     }
 
-    pub fn top(&mut self) -> [Color; 3] {
+    pub fn top(&self) -> [Color; 3] {
         let mut colors: [Color; 3] = Default::default();
         for x in 0..3 {
             colors[x] = self.colors[x][2];
@@ -66,7 +94,7 @@ impl Side {
         return colors;
     }
 
-    pub fn left(&mut self) -> [Color; 3] {
+    pub fn left(&self) -> [Color; 3] {
         let mut colors: [Color; 3] = Default::default();
         for y in 0..3 {
             colors[y] = self.colors[0][y];
@@ -74,7 +102,7 @@ impl Side {
         return colors;
     }
 
-    pub fn bottom(&mut self) -> [Color; 3] {
+    pub fn bottom(&self) -> [Color; 3] {
         let mut colors: [Color; 3] = Default::default();
         for x in 0..3 {
             colors[x] = self.colors[x][0];
@@ -82,7 +110,7 @@ impl Side {
         return colors;
     }
 
-    pub fn right(&mut self) -> [Color; 3] {
+    pub fn right(&self) -> [Color; 3] {
         let mut colors: [Color; 3] = Default::default();
         for y in 0..3 {
             colors[y] = self.colors[2][y];
@@ -90,7 +118,7 @@ impl Side {
         return colors;
     }
 
-    pub fn replace_top(&mut self, colors: &[Color; 3]) -> Side {
+    pub fn replace_top(&self, colors: &[Color; 3]) -> Side {
         let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
         for x in 0..3 {
             new_colors[x][2] = colors[x];
@@ -98,7 +126,7 @@ impl Side {
         return Side { colors: new_colors };
     }
 
-    pub fn replace_left(&mut self, colors: &[Color; 3]) -> Side {
+    pub fn replace_left(&self, colors: &[Color; 3]) -> Side {
         let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
         for y in 0..3 {
             new_colors[0][y] = colors[y];
@@ -106,7 +134,7 @@ impl Side {
         return Side { colors: new_colors };
     }
 
-    pub fn replace_bottom(&mut self, colors: &[Color; 3]) -> Side {
+    pub fn replace_bottom(&self, colors: &[Color; 3]) -> Side {
         let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
         for x in 0..3 {
             new_colors[x][0] = colors[x];
@@ -114,7 +142,7 @@ impl Side {
         return Side { colors: new_colors };
     }
 
-    pub fn replace_right(&mut self, colors: &[Color; 3]) -> Side {
+    pub fn replace_right(&self, colors: &[Color; 3]) -> Side {
         let mut new_colors: [[Color; 3]; 3] = self.colors.clone();
         for y in 0..3 {
             new_colors[2][y] = colors[y];

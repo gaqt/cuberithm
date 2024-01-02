@@ -1,46 +1,35 @@
-use crate::side::Side;
+use crate::{rotation::Rotation, side::Side};
 
-pub enum Rotation {
-    U,
-    Up,
-    L,
-    Lp,
-    F,
-    Fp,
-    R,
-    Rp,
-    B,
-    Bp,
-    D,
-    Dp,
-}
-
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct CubeState {
-    top: Side,
-    left: Side,
-    front: Side,
-    right: Side,
-    back: Side,
-    bottom: Side,
+    pub top: Side,
+    pub left: Side,
+    pub front: Side,
+    pub right: Side,
+    pub back: Side,
+    pub bottom: Side,
 }
 
+/*
+ * TODO: implement non copying cube state for better DFS perfomance
+ */
 impl CubeState {
-    pub fn rotate(&mut self, rotation: Rotation) -> CubeState {
+    pub fn rotate(&self, rotation: Rotation) -> CubeState {
         match rotation {
             Rotation::U => CubeState {
                 top: self.top.rotate_clockwise(),
-                left: self.left.replace_top(&self.back.top()),
-                front: self.front.replace_top(&self.left.top()),
-                right: self.right.replace_top(&self.front.top()),
-                back: self.back.replace_top(&self.right.top()),
-                bottom: self.bottom,
-            },
-            Rotation::Up => CubeState {
-                top: self.top.rotate_counterclockwise(),
                 left: self.left.replace_top(&self.front.top()),
                 front: self.front.replace_top(&self.right.top()),
                 right: self.right.replace_top(&self.back.top()),
                 back: self.back.replace_top(&self.left.top()),
+                bottom: self.bottom,
+            },
+            Rotation::Up => CubeState {
+                top: self.top.rotate_counterclockwise(),
+                left: self.left.replace_top(&self.back.top()),
+                front: self.front.replace_top(&self.left.top()),
+                right: self.right.replace_top(&self.front.top()),
+                back: self.back.replace_top(&self.right.top()),
                 bottom: self.bottom,
             },
             Rotation::L => CubeState {
