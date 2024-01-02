@@ -40,7 +40,7 @@ impl Solver {
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
-        //dbg!(state);
+        dbg!(state);
         if state == self.desired_state
             && path.len() as u8 >= self.min_moves
             && path.len() as u8 <= self.max_moves
@@ -61,14 +61,6 @@ impl Solver {
         prev_states.push(state);
 
         for rotation in Rotation::iter() {
-            match path.last() {
-                Some(prev_rot) => {
-                    if *prev_rot == rotation.reverse() {
-                        continue;
-                    }
-                }
-                None => {}
-            }
             let new_state = state.rotate(rotation);
             if prev_states.contains(&new_state) {
                 continue;
@@ -96,12 +88,12 @@ impl Solver {
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
-        //dbg!(state);
+        dbg!(state);
         if state == self.initial_state {
             return;
         }
 
-        if path.len() as u8 > (self.max_moves + 1) / 2 {
+        if path.len() as u8 >= (self.max_moves + 1) / 2 {
             return;
         }
 
@@ -127,14 +119,6 @@ impl Solver {
         prev_states.push(state);
 
         for rotation in Rotation::iter() {
-            match path.last() {
-                Some(prev_rot) => {
-                    if *prev_rot == rotation.reverse() {
-                        continue;
-                    }
-                }
-                None => {}
-            }
             let new_state = state.rotate(rotation);
             if prev_states.contains(&new_state) {
                 continue;
