@@ -1,5 +1,6 @@
 use crate::{
     cube::CubeState,
+    rotation::Rotation,
     side::{Color, Side},
     solver::Solver,
 };
@@ -105,16 +106,20 @@ fn main() {
     let min_moves = get_min_moves(&args);
     let max_moves = get_max_moves(&args);
 
-    let mut solver = Solver::new(&initial_state, &desired_state, min_moves, max_moves);
+    let mut solutions: Vec<Vec<Rotation>> = Vec::new();
+    let mut middle_states: u64 = 0;
 
     let initial_time = Instant::now();
 
-    solver.solve();
+    for i in min_moves..(max_moves + 1) {
+        let mut solver = Solver::new(&initial_state, &desired_state, i);
+        solver.solve();
+        solutions.append(&mut solver.collect_solutions());
+        middle_states += solver.middle_states.len() as u64;
+    }
 
     let final_time = Instant::now();
     let elapsed_time = final_time.duration_since(initial_time);
-
-    let solutions = solver.collect_solutions();
 
     for idx in 0..solutions.len() {
         print!("Solution {}: ", idx);
@@ -126,7 +131,7 @@ fn main() {
     println!("\nDone.");
 
     println!("Elapsed Time: {:.3}s", elapsed_time.as_secs_f64());
-    println!("Middle states: {}", solver.middle_states.len());
+    println!("Middle states: {}", middle_states);
     println!("Solutions found: {}", solutions.len());
 }
 
