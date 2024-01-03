@@ -1,10 +1,9 @@
 use crate::{
     cube::CubeState,
-    rotation::Rotation,
     side::{Color, Side},
-    solver::Solver,
+    solver::{Solution, Solver},
 };
-use std::{env, time::Instant};
+use std::{collections::BTreeSet, env, time::Instant};
 
 pub mod cube;
 pub mod rotation;
@@ -106,16 +105,53 @@ fn main() {
     let min_moves = get_min_moves(&args);
     let max_moves = get_max_moves(&args);
 
-    let mut solutions: Vec<Vec<Rotation>> = Vec::new();
+    let mut solutions_raw: BTreeSet<Solution> = BTreeSet::new();
     let mut middle_states: u64 = 0;
 
     let initial_time = Instant::now();
 
-    for i in min_moves..(max_moves + 1) {
+    for i in 0..(max_moves + 1) {
         let mut solver = Solver::new(&initial_state, &desired_state, i);
         solver.solve();
-        solutions.append(&mut solver.collect_solutions());
+        solutions_raw.append(&mut solver.found_solutions);
         middle_states += solver.middle_states.len() as u64;
+    }
+
+    let mut solutions: Vec<Solution> = Vec::new();
+
+    /*
+     * Removing dead solutions, as in, if there is a solution smaller than X
+     * that is a subsequence of X, X is a dead solution
+     *
+     * Also removes solutions with len < min_moves
+     */
+    for solution in &solutions_raw {
+        if (solution.seq.len() as u8) < min_moves {
+            continue;
+        }
+        let mut is_dead = false;
+        for smaller in &solutions {
+            if smaller == solution {
+                break;
+            }
+
+            let mut idx: usize = 0;
+            for rot in &solution.seq {
+                if *rot == smaller.seq[idx] {
+                    idx += 1;
+                    if idx == smaller.seq.len() {
+                        is_dead = true;
+                        break;
+                    }
+                }
+            }
+            if is_dead {
+                break;
+            }
+        }
+        if !is_dead {
+            solutions.push(solution.clone());
+        }
     }
 
     let final_time = Instant::now();
@@ -123,8 +159,8 @@ fn main() {
 
     for idx in 0..solutions.len() {
         print!("Solution {}: ", idx);
-        for rot in 0..solutions[idx].len() {
-            print!("{} ", solutions[idx][rot]);
+        for rot in 0..solutions[idx].seq.len() {
+            print!("{} ", solutions[idx].seq[rot]);
         }
         println!();
     }
