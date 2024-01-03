@@ -1,11 +1,31 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    cmp::Ordering,
+    collections::{BTreeSet, HashMap},
+};
 use strum::IntoEnumIterator;
 
 use crate::{cube::CubeState, rotation::Rotation};
 
+#[derive(PartialEq, Eq, Clone)]
+pub struct Solution {
+    pub seq: Vec<Rotation>,
+}
+
+impl PartialOrd for Solution {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.seq.len().cmp(&other.seq.len()))
+    }
+}
+
+impl Ord for Solution {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.seq.len().cmp(&other.seq.len())
+    }
+}
+
 pub struct Solver {
-    pub middle_states: HashMap<CubeState, Vec<Rotation>>,
-    pub found_solutions: HashSet<Vec<Rotation>>,
+    pub middle_states: HashMap<CubeState, Solution>,
+    pub found_solutions: BTreeSet<Solution>,
     pub initial_state: CubeState,
     pub desired_state: CubeState,
     pub move_count: u8,
@@ -15,7 +35,7 @@ impl Solver {
     pub fn new(initial_state: &CubeState, desired_state: &CubeState, move_count: u8) -> Solver {
         Solver {
             middle_states: HashMap::new(),
-            found_solutions: HashSet::new(),
+            found_solutions: BTreeSet::new(),
             initial_state: initial_state.clone(),
             desired_state: desired_state.clone(),
             move_count,
@@ -34,7 +54,7 @@ impl Solver {
     ) {
         //dbg!(state);
         if *state == self.desired_state && path.len() as u8 == self.move_count {
-            self.found_solutions.insert(path.clone());
+            self.found_solutions.insert(Solution { seq: path.clone() });
             return;
         }
 
@@ -43,7 +63,8 @@ impl Solver {
         }
 
         if path.len() as u8 == (self.move_count + 1) / 2 {
-            self.middle_states.insert(state.clone(), path.clone());
+            self.middle_states
+                .insert(state.clone(), Solution { seq: path.clone() });
             return;
         }
 
@@ -90,7 +111,7 @@ impl Solver {
         if *state == self.initial_state {
             let mut complete_path = path.clone();
             complete_path.reverse();
-            self.found_solutions.insert(complete_path);
+            self.found_solutions.insert(Solution { seq: complete_path });
             return;
         }
 
@@ -102,14 +123,12 @@ impl Solver {
 
         match optional_path {
             Some(found_path) => {
-                if ((found_path.len() as u8 + path.len() as u8) < self.move_count)
-                    || ((found_path.len() as u8 + path.len() as u8) > self.move_count)
-                {
+                if (found_path.seq.len() as u8 + path.len() as u8) != self.move_count {
                     return;
                 }
                 let mut complete_path = found_path.clone();
                 for idx in (0..path.len()).rev() {
-                    complete_path.push(path[idx]);
+                    complete_path.seq.push(path[idx]);
                 }
                 self.found_solutions.insert(complete_path);
                 return;
@@ -148,15 +167,5 @@ impl Solver {
     pub fn solve(&mut self) {
         self.first_pass();
         self.second_pass();
-    }
-
-    pub fn collect_solutions(&self) -> Vec<Vec<Rotation>> {
-        let mut solutions: Vec<Vec<Rotation>> = Vec::new();
-
-        for solution in self.found_solutions.iter() {
-            solutions.push(solution.clone());
-        }
-
-        solutions
     }
 }
