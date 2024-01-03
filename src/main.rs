@@ -1,13 +1,15 @@
 use crate::{
     cube::CubeState,
     side::{Color, Side},
-    solver::{Solution, Solver},
+    solution::Solution,
+    solver::Solver,
 };
 use std::{collections::BTreeSet, env, time::Instant};
 
 pub mod cube;
 pub mod rotation;
 pub mod side;
+pub mod solution;
 pub mod solver;
 
 /*
@@ -105,70 +107,55 @@ fn main() {
     let min_moves = get_min_moves(&args);
     let max_moves = get_max_moves(&args);
 
-    let mut solutions_raw: BTreeSet<Solution> = BTreeSet::new();
-    let mut middle_states: u64 = 0;
+    let mut solutions_raw: Vec<Solution> = Vec::new();
+    let mut states_processed: u64 = 0;
 
     let initial_time = Instant::now();
 
     for i in 0..(max_moves + 1) {
         let mut solver = Solver::new(&initial_state, &desired_state, i);
         solver.solve();
-        solutions_raw.append(&mut solver.found_solutions);
-        middle_states += solver.middle_states.len() as u64;
+        for solution in &solver.found_solutions {
+            solutions_raw.push(solution.clone());
+        }
+        states_processed += solver.states_processed;
     }
 
-    let mut solutions: Vec<Solution> = Vec::new();
+    solutions_raw.sort();
+
+    let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
     /*
-     * Removing dead solutions, as in, if there is a solution smaller than X
-     * that is a subsequence of X, X is a dead solution
-     *
+     * Removes dead solutions
      * Also removes solutions with len < min_moves
      */
     for solution in &solutions_raw {
         if (solution.seq.len() as u8) < min_moves {
             continue;
         }
-        let mut is_dead = false;
-        for smaller in &solutions {
-            if smaller == solution {
-                break;
-            }
 
-            let mut idx: usize = 0;
-            for rot in &solution.seq {
-                if *rot == smaller.seq[idx] {
-                    idx += 1;
-                    if idx == smaller.seq.len() {
-                        is_dead = true;
-                        break;
-                    }
-                }
-            }
-            if is_dead {
-                break;
-            }
-        }
-        if !is_dead {
-            solutions.push(solution.clone());
+        if !solution.is_dead(&solutions_raw) {
+            solutions.insert(solution.clone());
         }
     }
 
     let final_time = Instant::now();
     let elapsed_time = final_time.duration_since(initial_time);
 
-    for idx in 0..solutions.len() {
+    let mut idx: u16 = 0;
+    for solution in &solutions {
         print!("Solution {}: ", idx);
-        for rot in 0..solutions[idx].seq.len() {
-            print!("{} ", solutions[idx].seq[rot]);
+        for rot in 0..solution.seq.len() {
+            print!("{} ", solution.seq[rot]);
         }
         println!();
+        idx += 1;
     }
     println!("\nDone.");
 
     println!("Elapsed Time: {:.3}s", elapsed_time.as_secs_f64());
-    println!("Middle states: {}", middle_states);
-    println!("Solutions found: {}", solutions.len());
+    println!("States Processed: {}", states_processed);
+    println!("Solutions Found: {}", solutions.len());
 }
 
 #[cfg(test)]
