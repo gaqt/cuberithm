@@ -90,7 +90,7 @@ front moves (F F' B B') require the most.
 
 use std::{
     fmt::Display,
-    ops::{BitAnd, BitOrAssign, BitXorAssign, Shl, ShlAssign, Shr, ShrAssign},
+    ops::{BitOrAssign, BitXorAssign, Shl, ShlAssign, ShrAssign},
 };
 
 use bnum::BUint;
@@ -396,7 +396,7 @@ impl Display for CubeState {
 
 impl CubeState {
     pub fn cell(&self, idx: u8) -> u8 {
-        (&self.state).shr(3 * idx).bitand(CELL_MASK).digits()[0] as u8
+        (self.state).shr(3 * idx as u32).bitand(CELL_MASK).digits()[0] as u8
     }
 
     pub fn cell_char(&self, idx: u8) -> char {
@@ -522,109 +522,109 @@ impl CubeState {
     pub fn rotate(&mut self, rotation: Rotation) {
         match rotation {
             Rotation::U => {
-                let mut up_cells = (&self.state).bitand(&UP_MASK);
-                self.state.bitxor_assign(&up_cells);
+                let mut up_cells = (self.state).bitand(UP_MASK);
+                self.state.bitxor_assign(up_cells);
                 up_cells.shr_assign(3 * 1);
-                let mut overflow_cells = (&up_cells).bitand(&UP_OVERFLOW_MASK);
-                up_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (up_cells).bitand(UP_OVERFLOW_MASK);
+                up_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shl_assign(3 * 4);
-                up_cells.bitxor_assign(&overflow_cells);
+                up_cells.bitxor_assign(overflow_cells);
                 self.state.bitxor_assign(up_cells);
 
-                let mut side_cells = (&self.state).bitand(&UP_SIDE_MASK);
-                self.state.bitxor_assign(&side_cells);
+                let mut side_cells = (self.state).bitand(UP_SIDE_MASK);
+                self.state.bitxor_assign(side_cells);
                 side_cells.shr_assign(3 * 8);
-                let mut side_overflow_cells = (&side_cells).bitand(&UP_SIDE_OVERFLOW_MASK);
-                side_cells.bitxor_assign(&side_overflow_cells);
+                let mut side_overflow_cells = (side_cells).bitand(UP_SIDE_OVERFLOW_MASK);
+                side_cells.bitxor_assign(side_overflow_cells);
                 side_overflow_cells.shl_assign(3 * 32);
-                side_cells.bitxor_assign(&side_overflow_cells);
-                self.state.bitxor_assign(&side_cells);
+                side_cells.bitxor_assign(side_overflow_cells);
+                self.state.bitxor_assign(side_cells);
             }
             Rotation::Up => {
-                let mut up_cells = (&self.state).bitand(&UP_MASK);
-                self.state.bitxor_assign(&up_cells);
+                let mut up_cells = (self.state).bitand(UP_MASK);
+                self.state.bitxor_assign(up_cells);
                 up_cells.shl_assign(3 * 1);
-                let mut overflow_cells = (&up_cells).bitand(&UP_OVERFLOW_MASK_REV);
-                up_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (up_cells).bitand(UP_OVERFLOW_MASK_REV);
+                up_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shr_assign(3 * 4);
-                up_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&up_cells);
+                up_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(up_cells);
 
-                let mut side_cells = (&self.state).bitand(&UP_SIDE_MASK);
-                self.state.bitxor_assign(&side_cells);
+                let mut side_cells = (self.state).bitand(UP_SIDE_MASK);
+                self.state.bitxor_assign(side_cells);
                 side_cells.shl_assign(3 * 8);
-                let mut side_overflow_cells = (&side_cells).bitand(&UP_SIDE_OVERFLOW_MASK_REV);
-                side_cells.bitxor_assign(&side_overflow_cells);
+                let mut side_overflow_cells = (side_cells).bitand(UP_SIDE_OVERFLOW_MASK_REV);
+                side_cells.bitxor_assign(side_overflow_cells);
                 side_overflow_cells.shr_assign(3 * 32);
-                side_cells.bitxor_assign(&side_overflow_cells);
-                self.state.bitxor_assign(&side_cells);
+                side_cells.bitxor_assign(side_overflow_cells);
+                self.state.bitxor_assign(side_cells);
             }
             Rotation::L => {
-                let mut left_cells = (&self.state).bitand(&LEFT_MASK);
-                self.state.bitxor_assign(&left_cells);
+                let mut left_cells = (self.state).bitand(LEFT_MASK);
+                self.state.bitxor_assign(left_cells);
                 left_cells.shr_assign(3 * 1);
-                let mut overflow_cells = (&left_cells).bitand(&LEFT_OVERFLOW_MASK);
-                left_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (left_cells).bitand(LEFT_OVERFLOW_MASK);
+                left_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shl_assign(3 * 4);
-                left_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&left_cells);
+                left_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(left_cells);
 
-                let mut side0_cells = (&self.state).bitand(&LEFT_SIDE_MASK_0);
-                let mut side1_cells = (&self.state).bitand(&LEFT_SIDE_MASK_1);
-                let mut side2_cells = (&self.state).bitand(&LEFT_SIDE_MASK_2);
-                let mut side3_cells = (&self.state).bitand(&LEFT_SIDE_MASK_3);
+                let mut side0_cells = (self.state).bitand(LEFT_SIDE_MASK_0);
+                let mut side1_cells = (self.state).bitand(LEFT_SIDE_MASK_1);
+                let mut side2_cells = (self.state).bitand(LEFT_SIDE_MASK_2);
+                let mut side3_cells = (self.state).bitand(LEFT_SIDE_MASK_3);
                 side0_cells.shl_assign(3 * 16);
                 side1_cells.shl_assign(3 * 24);
                 side2_cells.shr_assign(3 * 6);
                 side3_cells.shr_assign(3 * 34);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&LEFT_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0_cells);
-                self.state.bitxor_assign(&side1_cells);
-                self.state.bitxor_assign(&side2_cells);
-                self.state.bitxor_assign(&side3_cells);
+                    .bitxor_assign((self.state).bitand(LEFT_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0_cells);
+                self.state.bitxor_assign(side1_cells);
+                self.state.bitxor_assign(side2_cells);
+                self.state.bitxor_assign(side3_cells);
             }
             Rotation::Lp => {
-                let mut left_cells = (&self.state).bitand(&LEFT_MASK);
-                self.state.bitxor_assign(&left_cells);
+                let mut left_cells = (self.state).bitand(LEFT_MASK);
+                self.state.bitxor_assign(left_cells);
                 left_cells.shl_assign(3 * 1);
-                let mut overflow_cells = (&left_cells).bitand(&LEFT_OVERFLOW_MASK_REV);
-                left_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (left_cells).bitand(LEFT_OVERFLOW_MASK_REV);
+                left_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shr_assign(3 * 4);
-                left_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&left_cells);
+                left_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(left_cells);
 
-                let mut side0_cells = (&self.state).bitand(&LEFT_SIDE_MASK_0);
-                let mut side1_cells = (&self.state).bitand(&LEFT_SIDE_MASK_1);
-                let mut side2_cells = (&self.state).bitand(&LEFT_SIDE_MASK_2);
-                let mut side3_cells = (&self.state).bitand(&LEFT_SIDE_MASK_3);
+                let mut side0_cells = (self.state).bitand(LEFT_SIDE_MASK_0);
+                let mut side1_cells = (self.state).bitand(LEFT_SIDE_MASK_1);
+                let mut side2_cells = (self.state).bitand(LEFT_SIDE_MASK_2);
+                let mut side3_cells = (self.state).bitand(LEFT_SIDE_MASK_3);
                 side0_cells.shl_assign(3 * 34);
                 side1_cells.shr_assign(3 * 16);
                 side2_cells.shr_assign(3 * 24);
                 side3_cells.shl_assign(3 * 6);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&LEFT_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0_cells);
-                self.state.bitxor_assign(&side1_cells);
-                self.state.bitxor_assign(&side2_cells);
-                self.state.bitxor_assign(&side3_cells);
+                    .bitxor_assign((self.state).bitand(LEFT_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0_cells);
+                self.state.bitxor_assign(side1_cells);
+                self.state.bitxor_assign(side2_cells);
+                self.state.bitxor_assign(side3_cells);
             }
             Rotation::F => {
-                let mut front_cells = (&self.state).bitand(&FRONT_MASK);
-                self.state.bitxor_assign(&front_cells);
+                let mut front_cells = (self.state).bitand(FRONT_MASK);
+                self.state.bitxor_assign(front_cells);
                 front_cells.shr_assign(3 * 1);
-                let mut overflow_cells = (&front_cells).bitand(&FRONT_OVERFLOW_MASK);
-                front_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (front_cells).bitand(FRONT_OVERFLOW_MASK);
+                front_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shl_assign(3 * 4);
-                front_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&front_cells);
+                front_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(front_cells);
 
-                let mut side0_cells = (&self.state).bitand(&FRONT_SIDE_MASK_0);
-                let mut side1a_cells = (&self.state).bitand(&FRONT_SIDE_MASK_1A);
-                let mut side1b_cells = (&self.state).bitand(&FRONT_SIDE_MASK_1B);
-                let mut side2a_cells = (&self.state).bitand(&FRONT_SIDE_MASK_2A);
-                let mut side2b_cells = (&self.state).bitand(&FRONT_SIDE_MASK_2B);
-                let mut side3_cells = (&self.state).bitand(&FRONT_SIDE_MASK_3);
+                let mut side0_cells = (self.state).bitand(FRONT_SIDE_MASK_0);
+                let mut side1a_cells = (self.state).bitand(FRONT_SIDE_MASK_1A);
+                let mut side1b_cells = (self.state).bitand(FRONT_SIDE_MASK_1B);
+                let mut side2a_cells = (self.state).bitand(FRONT_SIDE_MASK_2A);
+                let mut side2b_cells = (self.state).bitand(FRONT_SIDE_MASK_2B);
+                let mut side3_cells = (self.state).bitand(FRONT_SIDE_MASK_3);
                 side0_cells.shl_assign(3 * 23);
                 side1a_cells.shl_assign(3 * 15);
                 side1b_cells.shl_assign(3 * 19);
@@ -632,30 +632,30 @@ impl CubeState {
                 side2b_cells.shr_assign(3 * 33);
                 side3_cells.shr_assign(3 * 9);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&FRONT_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0_cells);
-                self.state.bitxor_assign(&side1a_cells);
-                self.state.bitxor_assign(&side1b_cells);
-                self.state.bitxor_assign(&side2a_cells);
-                self.state.bitxor_assign(&side2b_cells);
-                self.state.bitxor_assign(&side3_cells);
+                    .bitxor_assign((self.state).bitand(FRONT_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0_cells);
+                self.state.bitxor_assign(side1a_cells);
+                self.state.bitxor_assign(side1b_cells);
+                self.state.bitxor_assign(side2a_cells);
+                self.state.bitxor_assign(side2b_cells);
+                self.state.bitxor_assign(side3_cells);
             }
             Rotation::Fp => {
-                let mut front_cells = (&self.state).bitand(&FRONT_MASK);
-                self.state.bitxor_assign(&front_cells);
+                let mut front_cells = (self.state).bitand(FRONT_MASK);
+                self.state.bitxor_assign(front_cells);
                 front_cells.shl_assign(3 * 1);
-                let mut overflow_cells = (&front_cells).bitand(&FRONT_OVERFLOW_MASK_REV);
-                front_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (front_cells).bitand(FRONT_OVERFLOW_MASK_REV);
+                front_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shr_assign(3 * 4);
-                front_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&front_cells);
+                front_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(front_cells);
 
-                let mut side0_cells = (&self.state).bitand(&FRONT_SIDE_MASK_0);
-                let mut side1_cells = (&self.state).bitand(&FRONT_SIDE_MASK_1);
-                let mut side2a_cells = (&self.state).bitand(&FRONT_SIDE_MASK_2A);
-                let mut side2b_cells = (&self.state).bitand(&FRONT_SIDE_MASK_2B);
-                let mut side3a_cells = (&self.state).bitand(&FRONT_SIDE_MASK_3A);
-                let mut side3b_cells = (&self.state).bitand(&FRONT_SIDE_MASK_3B);
+                let mut side0_cells = (self.state).bitand(FRONT_SIDE_MASK_0);
+                let mut side1_cells = (self.state).bitand(FRONT_SIDE_MASK_1);
+                let mut side2a_cells = (self.state).bitand(FRONT_SIDE_MASK_2A);
+                let mut side2b_cells = (self.state).bitand(FRONT_SIDE_MASK_2B);
+                let mut side3a_cells = (self.state).bitand(FRONT_SIDE_MASK_3A);
+                let mut side3b_cells = (self.state).bitand(FRONT_SIDE_MASK_3B);
                 side0_cells.shl_assign(3 * 9);
                 side1_cells.shr_assign(3 * 23);
                 side2a_cells.shr_assign(3 * 15);
@@ -663,80 +663,80 @@ impl CubeState {
                 side3a_cells.shl_assign(3 * 29);
                 side3b_cells.shl_assign(3 * 33);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&FRONT_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0_cells);
-                self.state.bitxor_assign(&side1_cells);
-                self.state.bitxor_assign(&side2a_cells);
-                self.state.bitxor_assign(&side2b_cells);
-                self.state.bitxor_assign(&side3a_cells);
-                self.state.bitxor_assign(&side3b_cells);
+                    .bitxor_assign((self.state).bitand(FRONT_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0_cells);
+                self.state.bitxor_assign(side1_cells);
+                self.state.bitxor_assign(side2a_cells);
+                self.state.bitxor_assign(side2b_cells);
+                self.state.bitxor_assign(side3a_cells);
+                self.state.bitxor_assign(side3b_cells);
             }
             Rotation::R => {
-                let mut right_cells = (&self.state).bitand(&RIGHT_MASK);
-                self.state.bitxor_assign(&right_cells);
+                let mut right_cells = (self.state).bitand(RIGHT_MASK);
+                self.state.bitxor_assign(right_cells);
                 right_cells.shr_assign(3 * 1);
-                let mut overflow_cells = (&right_cells).bitand(&RIGHT_OVERFLOW_MASK);
-                right_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (right_cells).bitand(RIGHT_OVERFLOW_MASK);
+                right_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shl_assign(3 * 4);
-                right_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&right_cells);
+                right_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(right_cells);
 
-                let mut side0_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_0);
-                let mut side1_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_1);
-                let mut side2_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_2);
-                let mut side3_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_3);
+                let mut side0_cells = (self.state).bitand(RIGHT_SIDE_MASK_0);
+                let mut side1_cells = (self.state).bitand(RIGHT_SIDE_MASK_1);
+                let mut side2_cells = (self.state).bitand(RIGHT_SIDE_MASK_2);
+                let mut side3_cells = (self.state).bitand(RIGHT_SIDE_MASK_3);
                 side0_cells.shl_assign(3 * 30);
                 side1_cells.shl_assign(3 * 10);
                 side2_cells.shr_assign(3 * 24);
                 side3_cells.shr_assign(3 * 16);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&RIGHT_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0_cells);
-                self.state.bitxor_assign(&side1_cells);
-                self.state.bitxor_assign(&side2_cells);
-                self.state.bitxor_assign(&side3_cells);
+                    .bitxor_assign((self.state).bitand(RIGHT_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0_cells);
+                self.state.bitxor_assign(side1_cells);
+                self.state.bitxor_assign(side2_cells);
+                self.state.bitxor_assign(side3_cells);
             }
             Rotation::Rp => {
-                let mut right_cells = (&self.state).bitand(&RIGHT_MASK);
-                self.state.bitxor_assign(&right_cells);
+                let mut right_cells = (self.state).bitand(RIGHT_MASK);
+                self.state.bitxor_assign(right_cells);
                 right_cells.shl_assign(3 * 1);
-                let mut overflow_cells = (&right_cells).bitand(&RIGHT_OVERFLOW_MASK_REV);
-                right_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (right_cells).bitand(RIGHT_OVERFLOW_MASK_REV);
+                right_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shr_assign(3 * 4);
-                right_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&right_cells);
+                right_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(right_cells);
 
-                let mut side0_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_0);
-                let mut side1_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_1);
-                let mut side2_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_2);
-                let mut side3_cells = (&self.state).bitand(&RIGHT_SIDE_MASK_3);
+                let mut side0_cells = (self.state).bitand(RIGHT_SIDE_MASK_0);
+                let mut side1_cells = (self.state).bitand(RIGHT_SIDE_MASK_1);
+                let mut side2_cells = (self.state).bitand(RIGHT_SIDE_MASK_2);
+                let mut side3_cells = (self.state).bitand(RIGHT_SIDE_MASK_3);
                 side0_cells.shl_assign(3 * 16);
                 side1_cells.shr_assign(3 * 30);
                 side2_cells.shr_assign(3 * 10);
                 side3_cells.shl_assign(3 * 24);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&RIGHT_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0_cells);
-                self.state.bitxor_assign(&side1_cells);
-                self.state.bitxor_assign(&side2_cells);
-                self.state.bitxor_assign(&side3_cells);
+                    .bitxor_assign((self.state).bitand(RIGHT_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0_cells);
+                self.state.bitxor_assign(side1_cells);
+                self.state.bitxor_assign(side2_cells);
+                self.state.bitxor_assign(side3_cells);
             }
             Rotation::B => {
-                let mut back_cells = (&self.state).bitand(&BACK_MASK);
-                self.state.bitxor_assign(&back_cells);
+                let mut back_cells = (self.state).bitand(BACK_MASK);
+                self.state.bitxor_assign(back_cells);
                 back_cells.shr_assign(3 * 1);
-                let mut overflow_cells = (&back_cells).bitand(&BACK_OVERFLOW_MASK);
-                back_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (back_cells).bitand(BACK_OVERFLOW_MASK);
+                back_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shl_assign(3 * 4);
-                back_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&back_cells);
+                back_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(back_cells);
 
-                let mut side0a_cells = (&self.state).bitand(&BACK_SIDE_MASK_0A);
-                let mut side0b_cells = (&self.state).bitand(&BACK_SIDE_MASK_0B);
-                let mut side1_cells = (&self.state).bitand(&BACK_SIDE_MASK_1);
-                let mut side2_cells = (&self.state).bitand(&BACK_SIDE_MASK_2);
-                let mut side3a_cells = (&self.state).bitand(&BACK_SIDE_MASK_3A);
-                let mut side3b_cells = (&self.state).bitand(&BACK_SIDE_MASK_3B);
+                let mut side0a_cells = (self.state).bitand(BACK_SIDE_MASK_0A);
+                let mut side0b_cells = (self.state).bitand(BACK_SIDE_MASK_0B);
+                let mut side1_cells = (self.state).bitand(BACK_SIDE_MASK_1);
+                let mut side2_cells = (self.state).bitand(BACK_SIDE_MASK_2);
+                let mut side3a_cells = (self.state).bitand(BACK_SIDE_MASK_3A);
+                let mut side3b_cells = (self.state).bitand(BACK_SIDE_MASK_3B);
                 side0a_cells.shl_assign(3 * 9);
                 side0b_cells.shl_assign(3 * 5);
                 side1_cells.shl_assign(3 * 33);
@@ -744,30 +744,30 @@ impl CubeState {
                 side3a_cells.shr_assign(3 * 27);
                 side3b_cells.shr_assign(3 * 23);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&BACK_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0a_cells);
-                self.state.bitxor_assign(&side0b_cells);
-                self.state.bitxor_assign(&side1_cells);
-                self.state.bitxor_assign(&side2_cells);
-                self.state.bitxor_assign(&side3a_cells);
-                self.state.bitxor_assign(&side3b_cells);
+                    .bitxor_assign((self.state).bitand(BACK_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0a_cells);
+                self.state.bitxor_assign(side0b_cells);
+                self.state.bitxor_assign(side1_cells);
+                self.state.bitxor_assign(side2_cells);
+                self.state.bitxor_assign(side3a_cells);
+                self.state.bitxor_assign(side3b_cells);
             }
             Rotation::Bp => {
-                let mut back_cells = (&self.state).bitand(&BACK_MASK);
-                self.state.bitxor_assign(&back_cells);
+                let mut back_cells = (self.state).bitand(BACK_MASK);
+                self.state.bitxor_assign(back_cells);
                 back_cells.shl_assign(3 * 1);
-                let mut overflow_cells = (&back_cells).bitand(&BACK_OVERFLOW_MASK_REV);
-                back_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (back_cells).bitand(BACK_OVERFLOW_MASK_REV);
+                back_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shr_assign(3 * 4);
-                back_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&back_cells);
+                back_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(back_cells);
 
-                let mut side0a_cells = (&self.state).bitand(&BACK_SIDE_MASK_0A);
-                let mut side0b_cells = (&self.state).bitand(&BACK_SIDE_MASK_0B);
-                let mut side1a_cells = (&self.state).bitand(&BACK_SIDE_MASK_1A);
-                let mut side1b_cells = (&self.state).bitand(&BACK_SIDE_MASK_1B);
-                let mut side2_cells = (&self.state).bitand(&BACK_SIDE_MASK_2);
-                let mut side3_cells = (&self.state).bitand(&BACK_SIDE_MASK_3);
+                let mut side0a_cells = (self.state).bitand(BACK_SIDE_MASK_0A);
+                let mut side0b_cells = (self.state).bitand(BACK_SIDE_MASK_0B);
+                let mut side1a_cells = (self.state).bitand(BACK_SIDE_MASK_1A);
+                let mut side1b_cells = (self.state).bitand(BACK_SIDE_MASK_1B);
+                let mut side2_cells = (self.state).bitand(BACK_SIDE_MASK_2);
+                let mut side3_cells = (self.state).bitand(BACK_SIDE_MASK_3);
                 side0a_cells.shl_assign(3 * 27);
                 side0b_cells.shl_assign(3 * 23);
                 side1a_cells.shr_assign(3 * 9);
@@ -775,51 +775,51 @@ impl CubeState {
                 side2_cells.shr_assign(3 * 33);
                 side3_cells.shl_assign(3 * 15);
                 self.state
-                    .bitxor_assign((&self.state).bitand(&BACK_SIDE_MASK_ALL));
-                self.state.bitxor_assign(&side0a_cells);
-                self.state.bitxor_assign(&side0b_cells);
-                self.state.bitxor_assign(&side1a_cells);
-                self.state.bitxor_assign(&side1b_cells);
-                self.state.bitxor_assign(&side2_cells);
-                self.state.bitxor_assign(&side3_cells);
+                    .bitxor_assign((self.state).bitand(BACK_SIDE_MASK_ALL));
+                self.state.bitxor_assign(side0a_cells);
+                self.state.bitxor_assign(side0b_cells);
+                self.state.bitxor_assign(side1a_cells);
+                self.state.bitxor_assign(side1b_cells);
+                self.state.bitxor_assign(side2_cells);
+                self.state.bitxor_assign(side3_cells);
             }
             Rotation::D => {
-                let mut down_cells = (&self.state).bitand(&DOWN_MASK);
-                self.state.bitxor_assign(&down_cells);
+                let mut down_cells = (self.state).bitand(DOWN_MASK);
+                self.state.bitxor_assign(down_cells);
                 down_cells.shr_assign(3 * 1);
-                let mut overflow_cells = (&down_cells).bitand(&DOWN_OVERFLOW_MASK);
-                down_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (down_cells).bitand(DOWN_OVERFLOW_MASK);
+                down_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shl_assign(3 * 4);
-                down_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&down_cells);
+                down_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(down_cells);
 
-                let mut side_cells = (&self.state).bitand(&DOWN_SIDE_MASK);
-                self.state.bitxor_assign(&side_cells);
+                let mut side_cells = (self.state).bitand(DOWN_SIDE_MASK);
+                self.state.bitxor_assign(side_cells);
                 side_cells.shl_assign(3 * 8);
-                let mut side_overflow_cells = (&side_cells).bitand(&DOWN_SIDE_OVERFLOW_MASK);
-                side_cells.bitxor_assign(&side_overflow_cells);
+                let mut side_overflow_cells = (side_cells).bitand(DOWN_SIDE_OVERFLOW_MASK);
+                side_cells.bitxor_assign(side_overflow_cells);
                 side_overflow_cells.shr_assign(3 * 32);
-                side_cells.bitxor_assign(&side_overflow_cells);
-                self.state.bitxor_assign(&side_cells);
+                side_cells.bitxor_assign(side_overflow_cells);
+                self.state.bitxor_assign(side_cells);
             }
             Rotation::Dp => {
-                let mut down_cells = (&self.state).bitand(&DOWN_MASK);
-                self.state.bitxor_assign(&down_cells);
+                let mut down_cells = (self.state).bitand(DOWN_MASK);
+                self.state.bitxor_assign(down_cells);
                 down_cells.shl_assign(3 * 1);
-                let mut overflow_cells = (&down_cells).bitand(&DOWN_OVERFLOW_MASK_REV);
-                down_cells.bitxor_assign(&overflow_cells);
+                let mut overflow_cells = (down_cells).bitand(DOWN_OVERFLOW_MASK_REV);
+                down_cells.bitxor_assign(overflow_cells);
                 overflow_cells.shr_assign(3 * 4);
-                down_cells.bitxor_assign(&overflow_cells);
-                self.state.bitxor_assign(&down_cells);
+                down_cells.bitxor_assign(overflow_cells);
+                self.state.bitxor_assign(down_cells);
 
-                let mut side_cells = (&self.state).bitand(&DOWN_SIDE_MASK);
-                self.state.bitxor_assign(&side_cells);
+                let mut side_cells = (self.state).bitand(DOWN_SIDE_MASK);
+                self.state.bitxor_assign(side_cells);
                 side_cells.shr_assign(3 * 8);
-                let mut side_overflow_cells = (&side_cells).bitand(&DOWN_SIDE_OVERFLOW_MASK_REV);
-                side_cells.bitxor_assign(&side_overflow_cells);
+                let mut side_overflow_cells = (side_cells).bitand(DOWN_SIDE_OVERFLOW_MASK_REV);
+                side_cells.bitxor_assign(side_overflow_cells);
                 side_overflow_cells.shl_assign(3 * 32);
-                side_cells.bitxor_assign(&side_overflow_cells);
-                self.state.bitxor_assign(&side_cells);
+                side_cells.bitxor_assign(side_overflow_cells);
+                self.state.bitxor_assign(side_cells);
             }
         }
     }
