@@ -1,9 +1,4 @@
-use crate::{
-    cube::CubeState,
-    side::{Color, Side},
-    solution::Solution,
-    solver::Solver,
-};
+use crate::{cube::CubeState, solution::Solution, solver::Solver};
 use std::{collections::BTreeSet, env, time::Instant};
 
 pub mod cube;
@@ -39,34 +34,10 @@ pub mod solver;
  * TODO: then 'max-mem' followed by the maximum amount of memory used by in megabytes
  */
 
-fn get_side(side_str: &str) -> Side {
-    assert_eq!(side_str.len(), 9);
-    let mut colors: [[Color; 3]; 3] = Default::default();
-    let mut chars = side_str.chars();
-    for y in 0..3 {
-        for x in 0..3 {
-            colors[x][y] = Color::from_char(chars.next().unwrap());
-        }
-    }
-    Side { colors }
-}
-
-fn get_cube_state(cube_str: &String) -> CubeState {
-    assert_eq!(cube_str.len(), 54);
-    CubeState {
-        top: get_side(&cube_str[0..9]),
-        left: get_side(&cube_str[9..18]),
-        front: get_side(&cube_str[18..27]),
-        right: get_side(&cube_str[27..36]),
-        back: get_side(&cube_str[36..45]),
-        bottom: get_side(&cube_str[45..54]),
-    }
-}
-
 fn get_initial_state(args: &Vec<String>) -> CubeState {
     for idx in 0..args.len() {
         if args[idx] == "initial-state" {
-            return get_cube_state(&args[idx + 1]);
+            return CubeState::from_str(&args[idx + 1]);
         }
     }
     panic!("Initial state unspecified");
@@ -75,7 +46,7 @@ fn get_initial_state(args: &Vec<String>) -> CubeState {
 fn get_desired_state(args: &Vec<String>) -> CubeState {
     for idx in 0..args.len() {
         if args[idx] == "desired-state" {
-            return get_cube_state(&args[idx + 1]);
+            return CubeState::from_str(&args[idx + 1]);
         }
     }
     panic!("Desired state unspecified");
@@ -160,10 +131,10 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::{cube::CubeState, get_cube_state, rotation::Rotation};
+    use crate::{cube::CubeState, rotation::Rotation};
 
     fn _solved_cube() -> CubeState {
-        return get_cube_state(&String::from(
+        return CubeState::from_str(&String::from(
             "WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY",
         ));
     }
@@ -172,7 +143,7 @@ mod tests {
      * Cube in a cube in a cube
      */
     fn ccc() -> CubeState {
-        return get_cube_state(&String::from(
+        return CubeState::from_str(&String::from(
             "RWGRWWRRRYOBOOBBBBWWWWGGWGRGGGRRGWRGYBOYBBYYYBYOYYOOOO",
         ));
     }
@@ -184,84 +155,84 @@ mod tests {
     fn check_cube_rotations() {
         let mut state: CubeState;
 
-        let u_state = get_cube_state(&String::from(
+        let u_state = CubeState::from_str(&String::from(
             "GWRWWRRRRYOBOOBWGRWWWWGGWRGGGGRRGYYYYBOYBBBBBBYOYYOOOO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::U);
         assert_eq!(u_state, state);
 
-        let up_state = get_cube_state(&String::from(
+        let up_state = CubeState::from_str(&String::from(
             "RRRRWWRWGYOBOOBYYYWWWWGGBBBGGGRRGWGRYBOYBBWRGBYOYYOOOO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::Up);
         assert_eq!(up_state, state);
 
-        let l_state = get_cube_state(&String::from(
+        let l_state = CubeState::from_str(&String::from(
             "YWGBWWORRBBBOOBYOBRWWRGGRGRGGGRRGWRGYBOYBYYYBWYOWYOWOO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::L);
         assert_eq!(l_state, state);
 
-        let lp_state = get_cube_state(&String::from(
+        let lp_state = CubeState::from_str(&String::from(
             "WWGWWWWRRBOYBOOBBBBWWYGGOGRGGGRRGWRGYBRYBRYYRYYOBYOOOO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::Lp);
         assert_eq!(lp_state, state);
 
-        let f_state = get_cube_state(&String::from(
+        let f_state = CubeState::from_str(&String::from(
             "BBBRWWRRRYOOOOOBBOWGRWGGWWWGGGWRGRRGYBOYBBYYYBYOYYOGRW",
         ));
         state = ccc().clone();
         state.rotate(Rotation::F);
         assert_eq!(f_state, state);
 
-        let fp_state = get_cube_state(&String::from(
+        let fp_state = CubeState::from_str(&String::from(
             "WRGRWWRRRYOROOWBBGWWWGGWRGWOGGORGORGYBOYBBYYYBYOYYOBBB",
         ));
         state = ccc().clone();
         state.rotate(Rotation::Fp);
         assert_eq!(fp_state, state);
 
-        let r_state = get_cube_state(&String::from(
+        let r_state = CubeState::from_str(&String::from(
             "RWWRWGRRRYOBOOBBBBWWOWGOWGOGGGGRRGRWRBOWBBGYYBYYYYYOOY",
         ));
         state = ccc().clone();
         state.rotate(Rotation::R);
         assert_eq!(r_state, state);
 
-        let rp_state = get_cube_state(&String::from(
+        let rp_state = CubeState::from_str(&String::from(
             "RWYRWYRRYYOBOOBBBBWWGWGWWGRWRGRRGGGGOBOOBBOYYBYWYYGOOR",
         ));
         state = ccc().clone();
         state.rotate(Rotation::Rp);
         assert_eq!(rp_state, state);
 
-        let b_state = get_cube_state(&String::from(
+        let b_state = CubeState::from_str(&String::from(
             "RWGRWWGGGROBROBRBBWWWWGGWGRGGBRRYWROOBYBBYYYYBOYYYOOOO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::B);
         assert_eq!(b_state, state);
 
-        let bp_state = get_cube_state(&String::from(
+        let bp_state = CubeState::from_str(&String::from(
             "RWGRWWYOBOOBYOBBBBWWWWGGWGRGGRRRRWRRYYYYBBYBOGGGYYOOOO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::Bp);
         assert_eq!(bp_state, state);
 
-        let d_state = get_cube_state(&String::from(
+        let d_state = CubeState::from_str(&String::from(
             "RWGRWWRRRYBOOOBBBBYOBWGGWGRWWWRRGWRGGGGYBBYYYOOOYYOBYO",
         ));
         state = ccc().clone();
         state.rotate(Rotation::D);
         assert_eq!(d_state, state);
 
-        let dp_state = get_cube_state(&String::from(
+        let dp_state = CubeState::from_str(&String::from(
             "RWGRWWRRRWWWOOBBBBGGGWGGWGRYBORRGWRGYOBYBBYYYOYBOYYOOO",
         ));
         state = ccc().clone();
