@@ -3,7 +3,6 @@ use std::{collections::BTreeSet, env, time::Instant};
 
 pub mod cube;
 pub mod rotation;
-pub mod side;
 pub mod solution;
 pub mod solver;
 
