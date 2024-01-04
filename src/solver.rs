@@ -32,18 +32,18 @@ impl Solver {
      */
     fn first_pass_(
         &mut self,
-        state: &mut CubeState,
+        state: CubeState,
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
         self.states_processed += 1;
 
-        if *state == self.desired_state && path.len() as u8 == self.move_count {
+        if state == self.desired_state && path.len() as u8 == self.move_count {
             self.found_solutions.insert(Solution { seq: path.clone() });
             return;
         }
 
-        if *state == self.desired_state {
+        if state == self.desired_state {
             return;
         }
 
@@ -58,14 +58,13 @@ impl Solver {
             if !path.is_empty() && *path.last().unwrap() == rotation.reverse() {
                 continue;
             }
-            state.rotate(rotation);
-            if prev_states.contains(state) {
-                state.rotate(rotation.reverse());
+            let mut new_state = state.clone();
+            new_state.rotate(rotation);
+            if prev_states.contains(&new_state) {
                 continue;
             }
             path.push(rotation);
-            self.first_pass_(state, prev_states, path);
-            state.rotate(rotation.reverse());
+            self.first_pass_(new_state, prev_states, path);
             path.pop();
         }
 
@@ -73,11 +72,7 @@ impl Solver {
     }
 
     pub fn first_pass(&mut self) {
-        self.first_pass_(
-            &mut self.initial_state.clone(),
-            &mut Vec::new(),
-            &mut Vec::new(),
-        );
+        self.first_pass_(self.initial_state.clone(), &mut Vec::new(), &mut Vec::new());
     }
 
     /*
@@ -87,13 +82,13 @@ impl Solver {
      */
     fn second_pass_(
         &mut self,
-        state: &mut CubeState,
+        state: CubeState,
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
         self.states_processed += 1;
 
-        if *state == self.initial_state {
+        if state == self.initial_state {
             let mut complete_path = path.clone();
             complete_path.reverse();
             self.found_solutions.insert(Solution { seq: complete_path });
@@ -105,8 +100,8 @@ impl Solver {
                 return;
             }
 
-            let mut solver_0 = Solver::new(&self.initial_state, state, (self.move_count + 1) / 2);
-            let mut solver_1 = Solver::new(state, &self.desired_state, self.move_count / 2);
+            let mut solver_0 = Solver::new(&self.initial_state, &state, (self.move_count + 1) / 2);
+            let mut solver_1 = Solver::new(&state, &self.desired_state, self.move_count / 2);
 
             solver_0.solve();
             solver_1.solve();
@@ -138,14 +133,13 @@ impl Solver {
             if !path.is_empty() && *path.last().unwrap() == rotation.reverse() {
                 continue;
             }
-            state.rotate(rotation);
-            if prev_states.contains(state) {
-                state.rotate(rotation.reverse());
+            let mut new_state = state.clone();
+            new_state.rotate(rotation);
+            if prev_states.contains(&new_state) {
                 continue;
             };
             path.push(rotation.reverse());
-            self.second_pass_(state, prev_states, path);
-            state.rotate(rotation.reverse());
+            self.second_pass_(new_state, prev_states, path);
             path.pop();
         }
 
@@ -153,11 +147,7 @@ impl Solver {
     }
 
     pub fn second_pass(&mut self) {
-        self.second_pass_(
-            &mut self.desired_state.clone(),
-            &mut Vec::new(),
-            &mut Vec::new(),
-        );
+        self.second_pass_(self.desired_state.clone(), &mut Vec::new(), &mut Vec::new());
     }
 
     pub fn solve(&mut self) {
