@@ -49,12 +49,12 @@ first, lets take the cells from the white side using a mask
 white_mask = (2^0 + 2^1 + 2^2) * (2^(3*0) + 2^(3*1) + 2^(3*2) + 2^(3*3) + 2^(3*4) + 2^(3*5) + 2^(3*6) ^ 2^(3*7))
               the 3 cell bits       the indexes of the cells (taking into account cell size, which is 3 bits)
 
-overflow_mask = (2^0 + 2^1 + 2^2) * (2^(3*4) + 2^(3*8))
+overflow_mask = (2^0 + 2^1 + 2^2) * (2^(3*0) + 2^(3*4))
 
 white_cells = state & white_mask
-new_white_cells = white_cells << 1
+new_white_cells = white_cells >> 1
 overflow_cells = new_white_cells & overflow_mask
-new_overflow_cells = overflow_cells >> 4
+new_overflow_cells = overflow_cells << 4
 new_white_cells ^= overflow_cells
 new_white_cells ^= new_overflow_cells
 
@@ -63,12 +63,12 @@ now, we take the surrounding cells using another mask
 
 side_mask = (2^0 + 2^1 + 2^2) * (2^(3*8) + 2^(3*12) + 2^(3*11) + ... + 2^(3*36) + 2^(3*35))
 
-overflow_mask = (2^0 + 2^1 + 2^2) * (2^(3*40) + 2^(3*44) + 2^(3*43))
+overflow_mask = (2^0 + 2^1 + 2^2) * (2^(3*1) + 2^(3*5) + 2^(3*4))
 
 side_cells = state & side_mask
-new_side_cells = side_cells << 8
+new_side_cells = side_cells >> 8
 overflow_cells = new_side_cells & overflow_mask
-new_overflow_cells = overflow_cells >> 32
+new_overflow_cells = overflow_cells << 32
 new_side_cells ^= overflow_cells
 new_side_cells ^= new_overflow_cells
 
