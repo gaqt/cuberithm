@@ -45,6 +45,7 @@ impl Solution {
      * Removing dead solutions, as in, if there is a solution smaller than X
      * that is a subsequence of X, X is a dead solution
      */
+    #[deprecated]
     pub fn is_dead(&self, others: &Vec<Solution>) -> bool {
         for smaller in others {
             if smaller == self {
@@ -57,6 +58,21 @@ impl Solution {
                     if idx == smaller.seq.len() {
                         return true;
                     }
+                }
+            }
+        }
+        return false;
+    }
+
+    pub fn has_useless_moves(&self) -> bool {
+        for i in 0..self.seq.len() {
+            for j in (i+1)..self.seq.len() {
+                if self.seq[j] == self.seq[i].reverse() {
+                    return true
+                }
+
+                if self.seq[j].face() != self.seq[i].face() {
+                    break;
                 }
             }
         }

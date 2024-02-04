@@ -51,14 +51,32 @@ impl Solver {
         for rotation in Rotation::iter() {
             let mut new_state = state.clone();
             new_state.rotate(rotation);
-            let mut contains = false;
-            for prev in &mut *prev_states {
-                if prev == &new_state {
-                    contains = true;
+            let mut valid = true;
+
+            // Check if move is useless
+            // e.g. R L R' (R' is useless since it undoes R)
+            for idx in (0..path.len()).rev() {
+                if path[idx] == rotation.reverse() {
+                    valid = false;
+                    if path[0] != Rotation::L {
+                        break;
+                    }
+                    break;
+                } else if path[idx].face() != rotation.opposite_face() {
                     break;
                 }
             }
-            if contains {
+
+            // Check if is repeating states
+            for prev in &mut *prev_states {
+                if prev == &new_state {
+                    valid = false;
+                    break;
+                }
+            }
+
+
+            if !valid {
                 continue;
             }
             path.push(rotation);
@@ -88,7 +106,6 @@ impl Solver {
 
         // println!("Processing second pass state: {:?}", &path);
 
-
         if (path.len() as u8) == (self.move_count + 1) / 2 && self.middle_states.contains(&state) {
             // Saving up memory by only calculating path when needed
 
@@ -97,8 +114,10 @@ impl Solver {
             l_solver.solve();
 
             let l_solutions = l_solver.found_solutions;
-            let mut right = path.clone();
-            right.reverse();
+            let right: Vec<Rotation> = path.iter()
+                .map(|it| it.reverse())
+                .rev()
+                .collect();
 
             for left in l_solutions {
                 let mut union = left.clone();
@@ -121,17 +140,35 @@ impl Solver {
         for rotation in Rotation::iter() {
             let mut new_state = state.clone();
             new_state.rotate(rotation);
-            let mut contains = false;
-            for prev in &mut *prev_states {
-                if prev == &new_state {
-                    contains = true;
+            let mut valid = true;
+
+            // Check if move is useless
+            // e.g. R L R' (R' is useless since it undoes R)
+            for idx in (0..path.len()).rev() {
+                if path[idx] == rotation.reverse() {
+                    valid = false;
+                    if path[0] != Rotation::L {
+                        break;
+                    }
+                    break;
+                } else if path[idx].face() != rotation.opposite_face() {
                     break;
                 }
             }
-            if contains {
+
+            // Check if is repeating states
+            for prev in &mut *prev_states {
+                if prev == &new_state {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if !valid {
                 continue;
             }
-            path.push(rotation.reverse());
+
+            path.push(rotation);
             self.second_pass_(new_state, prev_states, path);
             path.pop();
         }
