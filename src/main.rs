@@ -18,7 +18,7 @@ pub mod solver;
  * next 9 chars: colors in blue face
  * next 9 chars: colors in yellow face
  *
- * note: solved cube: WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY
+ * note: solved cube:        WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY
  * 1 move from being solved: WWWWWWWWWOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOYYYYYYYYY
  *
  * then 'desired-state' and repeat for desired state
