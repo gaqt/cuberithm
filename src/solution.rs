@@ -2,20 +2,39 @@ use std::cmp::Ordering;
 
 use crate::rotation::Rotation;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, Hash)]
 pub struct Solution {
     pub seq: Vec<Rotation>,
 }
 
 impl PartialOrd for Solution {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.seq.len().cmp(&other.seq.len()))
-    }
-}
+        // smaller is "lexicographically" smaller
 
-impl Ord for Solution {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.seq.len().cmp(&other.seq.len())
+        let shorter: &Vec<Rotation>;
+        let longer: &Vec<Rotation>;
+
+        if self.seq.len() <= other.seq.len() {
+            shorter = &self.seq;
+            longer = &other.seq;
+        } else {
+            shorter = &other.seq;
+            longer = &self.seq;
+        }
+
+        for idx in 0..shorter.len() {
+            if shorter[idx] < longer[idx] {
+                return Some(Ordering::Less);
+            } else if shorter[idx] > longer[idx] {
+                return Some(Ordering::Greater);
+            }
+        }
+
+        if shorter.len() == longer.len() {
+            return Some(Ordering::Equal);
+        } else {
+            return Some(Ordering::Less);
+        }
     }
 }
 
@@ -24,6 +43,7 @@ impl Solution {
      * Removing dead solutions, as in, if there is a solution smaller than X
      * that is a subsequence of X, X is a dead solution
      */
+    #[deprecated]
     pub fn is_dead(&self, others: &Vec<Solution>) -> bool {
         for smaller in others {
             if smaller == self {
@@ -36,6 +56,21 @@ impl Solution {
                     if idx == smaller.seq.len() {
                         return true;
                     }
+                }
+            }
+        }
+        return false;
+    }
+
+    pub fn has_useless_moves(&self) -> bool {
+        for i in 0..self.seq.len() {
+            for j in (i + 1)..self.seq.len() {
+                if self.seq[j] == self.seq[i].reverse() {
+                    return true;
+                }
+
+                if self.seq[j].face() != self.seq[i].face() {
+                    break;
                 }
             }
         }
