@@ -84,7 +84,7 @@ fn main() {
 
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
-    for i in min_moves..(max_moves + 1) {
+    for i in min_moves..=max_moves {
         let mut solver = Solver::new(&initial_state, &desired_state, i);
         solver.solve();
 
