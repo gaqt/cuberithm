@@ -2,6 +2,7 @@ use crate::{cube::CubeState, solution::Solution, solver::Solver};
 use std::{collections::BTreeSet, env, time::Instant};
 
 pub mod cube;
+pub mod face;
 pub mod rotation;
 pub mod solution;
 pub mod solver;
@@ -77,43 +78,34 @@ fn main() {
     let min_moves = get_min_moves(&args);
     let max_moves = get_max_moves(&args);
 
-    let mut solutions_raw: Vec<Solution> = Vec::new();
-    let mut states_processed: u64 = 0;
-
+    let mut first_pass_states: u64 = 0;
+    let mut second_pass_states: u64 = 0;
     let initial_time = Instant::now();
-
-    for i in 0..(max_moves + 1) {
-        let mut solver = Solver::new(&initial_state, &desired_state, i);
-        solver.solve();
-        for solution in &solver.found_solutions {
-            solutions_raw.push(solution.clone());
-        }
-        states_processed += solver.states_processed;
-    }
-
-    solutions_raw.sort();
 
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
-    /*
-     * Removes dead solutions
-     * Also removes solutions with len < min_moves
-     */
-    for solution in &solutions_raw {
-        if (solution.seq.len() as u8) < min_moves {
-            continue;
-        }
+    for i in min_moves..=max_moves {
+        let mut solver = Solver::new(&initial_state, &desired_state, i);
+        solver.solve();
 
-        if !solution.is_dead(&solutions_raw) {
+        for solution in &solver.found_solutions {
             solutions.insert(solution.clone());
         }
+
+        first_pass_states = solver.first_pass_states;
+        second_pass_states = solver.second_pass_states;
     }
+
+    let solutions_filtered: Vec<&Solution> = solutions
+        .iter()
+        .filter(|it| !it.has_useless_moves())
+        .collect();
 
     let final_time = Instant::now();
     let elapsed_time = final_time.duration_since(initial_time);
 
     let mut idx: u16 = 0;
-    for solution in &solutions {
+    for solution in &solutions_filtered {
         print!("Solution {}: ", idx);
         for rot in 0..solution.seq.len() {
             print!("{} ", solution.seq[rot]);
@@ -124,8 +116,13 @@ fn main() {
     println!("\nDone.");
 
     println!("Elapsed Time: {:.3}s", elapsed_time.as_secs_f64());
-    println!("States Processed: {}", states_processed);
-    println!("Solutions Found: {}", solutions.len());
+    println!("First Pass States: {}", first_pass_states);
+    println!("Second Pass States: {}", second_pass_states);
+    println!(
+        "States Processed: {}",
+        first_pass_states + second_pass_states
+    );
+    println!("Solutions Found: {}", solutions_filtered.len());
 }
 
 #[cfg(test)]
