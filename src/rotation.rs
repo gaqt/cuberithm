@@ -3,7 +3,9 @@ use strum_macros::EnumIter;
 
 use crate::face::Face;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, EnumIter, Debug, PartialOrd, Ord)]
+#[derive(
+    Clone, Copy, PartialEq, Eq, Hash, EnumIter, Debug, PartialOrd, Ord,
+)]
 pub enum Rotation {
     U,
     Up,

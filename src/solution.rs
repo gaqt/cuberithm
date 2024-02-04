@@ -7,11 +7,10 @@ pub struct Solution {
     pub seq: Vec<Rotation>,
 }
 
-
 impl PartialOrd for Solution {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         // smaller is "lexicographically" smaller
-        
+
         let shorter: &Vec<Rotation>;
         let longer: &Vec<Rotation>;
 
@@ -39,7 +38,6 @@ impl PartialOrd for Solution {
     }
 }
 
-
 impl Solution {
     /*
      * Removing dead solutions, as in, if there is a solution smaller than X
@@ -66,9 +64,9 @@ impl Solution {
 
     pub fn has_useless_moves(&self) -> bool {
         for i in 0..self.seq.len() {
-            for j in (i+1)..self.seq.len() {
+            for j in (i + 1)..self.seq.len() {
                 if self.seq[j] == self.seq[i].reverse() {
-                    return true
+                    return true;
                 }
 
                 if self.seq[j].face() != self.seq[i].face() {
