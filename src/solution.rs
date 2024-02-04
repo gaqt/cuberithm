@@ -2,22 +2,43 @@ use std::cmp::Ordering;
 
 use crate::rotation::Rotation;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, Hash)]
 pub struct Solution {
     pub seq: Vec<Rotation>,
 }
 
+
 impl PartialOrd for Solution {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.seq.len().cmp(&other.seq.len()))
+        // smaller is "lexicographically" smaller
+        
+        let shorter: &Vec<Rotation>;
+        let longer: &Vec<Rotation>;
+
+        if self.seq.len() <= other.seq.len() {
+            shorter = &self.seq;
+            longer = &other.seq;
+        } else {
+            shorter = &other.seq;
+            longer = &self.seq;
+        }
+
+        for idx in 0..shorter.len() {
+            if shorter[idx] < longer[idx] {
+                return Some(Ordering::Less);
+            } else if shorter[idx] > longer[idx] {
+                return Some(Ordering::Greater);
+            }
+        }
+
+        if shorter.len() == longer.len() {
+            return Some(Ordering::Equal);
+        } else {
+            return Some(Ordering::Less);
+        }
     }
 }
 
-impl Ord for Solution {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.seq.len().cmp(&other.seq.len())
-    }
-}
 
 impl Solution {
     /*

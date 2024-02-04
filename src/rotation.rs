@@ -1,7 +1,7 @@
 use std::fmt;
 use strum_macros::EnumIter;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, EnumIter, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, EnumIter, Debug, PartialOrd, Ord)]
 pub enum Rotation {
     U,
     Up,
