@@ -52,9 +52,9 @@ white_mask = (2^0 + 2^1 + 2^2) * (2^(3*0) + 2^(3*1) + 2^(3*2) + 2^(3*3) + 2^(3*4
 overflow_mask = (2^0 + 2^1 + 2^2) * (2^(3*0) + 2^(3*4))
 
 white_cells = state & white_mask
-new_white_cells = white_cells >> 1
+new_white_cells = white_cells >> 3
 overflow_cells = new_white_cells & overflow_mask
-new_overflow_cells = overflow_cells << 4
+new_overflow_cells = overflow_cells << 12
 new_white_cells ^= overflow_cells
 new_white_cells ^= new_overflow_cells
 
@@ -66,9 +66,9 @@ side_mask = (2^0 + 2^1 + 2^2) * (2^(3*8) + 2^(3*12) + 2^(3*11) + ... + 2^(3*36) 
 overflow_mask = (2^0 + 2^1 + 2^2) * (2^(3*1) + 2^(3*5) + 2^(3*4))
 
 side_cells = state & side_mask
-new_side_cells = side_cells >> 8
+new_side_cells = side_cells >> 24
 overflow_cells = new_side_cells & overflow_mask
-new_overflow_cells = overflow_cells << 32
+new_overflow_cells = overflow_cells << 96
 new_side_cells ^= overflow_cells
 new_side_cells ^= new_overflow_cells
 
