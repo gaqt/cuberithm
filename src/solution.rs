@@ -7,8 +7,8 @@ pub struct Solution {
     pub seq: Vec<Rotation>,
 }
 
-impl PartialOrd for Solution {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+impl Ord for Solution {
+    fn cmp(&self, other: &Self) -> Ordering {
         // smaller is "lexicographically" smaller
 
         let shorter: &Vec<Rotation>;
@@ -24,19 +24,26 @@ impl PartialOrd for Solution {
 
         for idx in 0..shorter.len() {
             match shorter[idx] {
-                x if x < longer[idx] => return Some(Ordering::Less),
-                x if x > longer[idx] => return Some(Ordering::Greater),
+                x if x < longer[idx] => return Ordering::Less,
+                x if x > longer[idx] => return Ordering::Greater,
                 _ => (),
             }
         }
 
         if shorter.len() == longer.len() {
-            Some(Ordering::Equal)
+            Ordering::Equal
         } else {
-            Some(Ordering::Less)
+            Ordering::Less
         }
     }
 }
+
+impl PartialOrd for Solution {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 
 impl Solution {
     /*
