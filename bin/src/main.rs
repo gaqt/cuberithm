@@ -1,6 +1,7 @@
 use clap::Parser;
 
 use cuberithm::{cube::CubeState, solution::Solution, solver::Solver};
+use std::str::FromStr;
 use std::{collections::BTreeSet, time::Instant};
 
 /// Simple algorithm generator for a 3x3x3 Rubik's Cube
@@ -62,14 +63,12 @@ fn main() {
     let final_time = Instant::now();
     let elapsed_time = final_time.duration_since(initial_time);
 
-    let mut idx: u16 = 0;
-    for solution in &solutions_filtered {
+    for (idx, solution) in (0_u16..).zip(solutions_filtered.iter()) {
         print!("Solution {}: ", idx);
-        for rot in 0..solution.seq.len() {
-            print!("{} ", solution.seq[rot]);
+        for rot in &solution.seq {
+            print!("{} ", rot);
         }
         println!();
-        idx += 1;
     }
     println!("\nDone.");
 
