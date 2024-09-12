@@ -44,7 +44,8 @@ fn main() {
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
     for i in min_moves..=max_moves {
-        let mut solver = Solver::new(&initial_state, &desired_state, i);
+        let mut solver =
+            Solver::new(initial_state.clone(), desired_state.clone(), i);
         solver.solve();
 
         for solution in &solver.found_solutions {
@@ -60,8 +61,7 @@ fn main() {
         .filter(|it| !it.has_useless_moves())
         .collect();
 
-    let final_time = Instant::now();
-    let elapsed_time = final_time.duration_since(initial_time);
+    let elapsed_time = Instant::now().duration_since(initial_time);
 
     for (idx, solution) in (0_u16..).zip(solutions_filtered.iter()) {
         print!("Solution {}: ", idx);

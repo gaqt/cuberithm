@@ -92,6 +92,7 @@ use std::str::FromStr;
 use std::{fmt::Display, ops::Shl};
 
 use bnum::BUint;
+use thiserror::Error;
 
 use crate::rotation::Rotation;
 
@@ -400,45 +401,57 @@ impl Display for CubeState {
     }
 }
 
+#[derive(Debug, Error)]
+pub enum FromStrErr {
+    #[error("Invalid string length")]
+    InvalidLen,
+    #[error("Invalid character: {0}")]
+    InvalidChar(char),
+}
+
 impl FromStr for CubeState {
-    type Err = ();
+    type Err = FromStrErr;
 
     fn from_str(cube_str: &str) -> Result<CubeState, Self::Err> {
-        assert_eq!(cube_str.len(), 54);
-
-        let mut state: BUint<3> = BUint::ZERO;
-        let mut chars = cube_str.chars();
-        for cellidx in DISPLAYIDX_TO_CELLIDX {
-            let color = chars.next().unwrap();
-
-            if cellidx == 0 {
-                continue;
-            }
-
-            let cell: u8 = match color {
-                'N' => 0b000,
-                'W' => 0b001,
-                'O' => 0b010,
-                'G' => 0b011,
-                'R' => 0b100,
-                'B' => 0b101,
-                'Y' => 0b110,
-                _ => return Err(()),
-            };
-
-            state |= (&ONE).shl(3 * cellidx).mul(cell.into());
+        if cube_str.len() != DISPLAYIDX_TO_CELLIDX.len() {
+            return Err(FromStrErr::InvalidLen);
         }
 
-        Ok(CubeState { state })
+        DISPLAYIDX_TO_CELLIDX
+            .iter()
+            .zip(cube_str.chars())
+            .try_fold(BUint::<3>::ZERO, |state, (&cellidx, color)| {
+                if cellidx == 0 {
+                    return Ok(state);
+                }
+
+                let cell: u8 = match color {
+                    'N' => 0b000,
+                    'W' => 0b001,
+                    'O' => 0b010,
+                    'G' => 0b011,
+                    'R' => 0b100,
+                    'B' => 0b101,
+                    'Y' => 0b110,
+                    _ => return Err(FromStrErr::InvalidChar(color)),
+                };
+
+                Ok(state | (&ONE).shl(3 * cellidx).mul(cell.into()))
+            })
+            .map(|state| CubeState { state })
     }
 }
 
 impl CubeState {
-    pub fn cell(&self, idx: u8) -> u8 {
+    /// # Panics
+    /// Will panic if idx is out of bounds
+    fn cell(&self, idx: u8) -> u8 {
         (self.state).shr(3 * idx as u32).bitand(CELL_MASK).digits()[0] as u8
     }
 
-    pub fn cell_char(&self, idx: u8) -> char {
+    /// # Panics
+    /// Will panic if idx is out of bounds or if the cell has invalid bits
+    fn cell_char(&self, idx: u8) -> char {
         match self.cell(idx) {
             0b000 => 'N',
             0b001 => 'W',
@@ -451,7 +464,9 @@ impl CubeState {
         }
     }
 
-    pub fn get_face_slice_str(&self, start: u8, slice: u8) -> String {
+    /// # Panics
+    /// Will panic if start or slice are out of bounds
+    fn get_face_slice_str(&self, start: u8, slice: u8) -> String {
         match slice {
             0 => format!(
                 "{} {} {}",

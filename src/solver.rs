@@ -16,15 +16,15 @@ pub struct Solver {
 
 impl Solver {
     pub fn new(
-        initial_state: &CubeState,
-        desired_state: &CubeState,
+        initial_state: CubeState,
+        desired_state: CubeState,
         move_count: u8,
     ) -> Solver {
         Solver {
             middle_states: HashSet::new(),
             found_solutions: HashSet::new(),
-            initial_state: initial_state.clone(),
-            desired_state: desired_state.clone(),
+            initial_state,
+            desired_state,
             move_count,
             first_pass_states: 0,
             second_pass_states: 0,
@@ -42,8 +42,6 @@ impl Solver {
         path: &mut Vec<Rotation>,
     ) {
         self.first_pass_states += 1;
-
-        // println!("Processing first pass state: {:?}", &path);
 
         if path.len() as u8 == self.move_count / 2 {
             self.middle_states.insert(state.clone());
@@ -111,15 +109,16 @@ impl Solver {
     ) {
         self.second_pass_states += 1;
 
-        // println!("Processing second pass state: {:?}", &path);
-
         if (path.len() as u8) == (self.move_count + 1) / 2
             && self.middle_states.contains(&state)
         {
             // Saving up memory by only calculating path when needed
 
-            let mut l_solver =
-                Solver::new(&self.initial_state, &state, self.move_count / 2);
+            let mut l_solver = Solver::new(
+                self.initial_state.clone(),
+                state.clone(),
+                self.move_count / 2,
+            );
 
             l_solver.solve();
 
@@ -219,7 +218,5 @@ impl Solver {
 
         self.first_pass();
         self.second_pass();
-
-        // println!("Done: {:#?}", self)
     }
 }
