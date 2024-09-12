@@ -1,10 +1,12 @@
+use bon::bon;
 use std::collections::HashSet;
 use strum::IntoEnumIterator;
 
+use crate::solution;
 use crate::{cube::CubeState, rotation::Rotation, solution::Solution};
 
 #[derive(Debug)]
-pub struct Solver {
+pub struct SolveInstance {
     pub middle_states: HashSet<CubeState>,
     pub found_solutions: HashSet<Solution>,
     pub initial_state: CubeState,
@@ -14,13 +16,11 @@ pub struct Solver {
     pub second_pass_states: u64,
 }
 
-impl Solver {
-    pub fn new(
-        initial_state: CubeState,
-        desired_state: CubeState,
-        move_count: u8,
-    ) -> Solver {
-        Solver {
+#[bon]
+impl SolveInstance {
+    #[builder]
+    pub fn new(initial_state: CubeState, desired_state: CubeState, move_count: u8) -> Self {
+        SolveInstance {
             middle_states: HashSet::new(),
             found_solutions: HashSet::new(),
             initial_state,
@@ -44,54 +44,33 @@ impl Solver {
         self.first_pass_states += 1;
 
         if path.len() as u8 == self.move_count / 2 {
-            self.middle_states.insert(state.clone());
+            self.middle_states.insert(state);
             return;
         }
 
-        prev_states.push(state.clone());
+        for rot in Rotation::iter() {
+            let new_state = state.rotate(rot);
 
-        for rotation in Rotation::iter() {
-            let mut new_state = state.clone();
-            new_state.rotate(rotation);
-            let mut valid = true;
-
-            // Check if move is useless
-            // e.g. R L R' (R' is useless since it undoes R)
-            for idx in (0..path.len()).rev() {
-                if path[idx] == rotation.reverse() {
-                    valid = false;
-                    if path[0] != Rotation::L {
-                        break;
-                    }
-                    break;
-                } else if path[idx].face() != rotation.opposite_face() {
-                    break;
-                }
-            }
-
-            // Check if is repeating states
-            for prev in &mut *prev_states {
-                if prev == &new_state {
-                    valid = false;
-                    break;
-                }
-            }
-
-            if !valid {
+            if prev_states.iter().rposition(|&x| x == new_state).is_some() {
                 continue;
             }
-            path.push(rotation);
+
+            if solution::is_rot_useless(&path, rot) {
+                continue;
+            }
+
+            path.push(rot);
+            prev_states.push(new_state);
             self.first_pass_(new_state, prev_states, path);
+            prev_states.pop();
             path.pop();
         }
-
-        prev_states.pop();
     }
 
-    pub fn first_pass(&mut self) {
+    fn first_pass(&mut self) {
         self.first_pass_(
-            self.initial_state.clone(),
-            &mut Vec::new(),
+            self.initial_state,
+            &mut vec![self.initial_state],
             &mut Vec::new(),
         );
     }
@@ -109,27 +88,28 @@ impl Solver {
     ) {
         self.second_pass_states += 1;
 
-        if (path.len() as u8) == (self.move_count + 1) / 2
-            && self.middle_states.contains(&state)
-        {
-            // Saving up memory by only calculating path when needed
+        if (path.len() as u8) == (self.move_count + 1) / 2 {
+            if !self.middle_states.contains(&state) {
+                return;
+            }
 
-            let mut l_solver = Solver::new(
-                self.initial_state.clone(),
-                state.clone(),
-                self.move_count / 2,
-            );
+            let mut l_solver = SolveInstance::builder()
+                .initial_state(self.initial_state)
+                .desired_state(state)
+                .move_count(self.move_count / 2)
+                .build();
 
             l_solver.solve();
 
             let l_solutions = l_solver.found_solutions;
-            let right: Vec<Rotation> =
-                path.iter().map(|it| it.reverse()).rev().collect();
+            let right: Vec<Rotation> = path.iter().map(|it| it.reverse()).rev().collect();
 
             for left in l_solutions {
-                let mut union = left.clone();
-                union.seq.append(&mut right.clone());
-                self.found_solutions.insert(union);
+                let mut union = left;
+                union.append(&mut right.clone());
+                if !solution::has_useless_moves(self.initial_state, &union) {
+                    self.found_solutions.insert(union);
+                }
             }
 
             self.first_pass_states += l_solver.first_pass_states;
@@ -138,78 +118,47 @@ impl Solver {
             return;
         }
 
-        if (path.len() as u8) == (self.move_count + 1) / 2 {
-            return;
-        }
+        for rot in Rotation::iter() {
+            let new_state = state.rotate(rot);
 
-        prev_states.push(state.clone());
-
-        for rotation in Rotation::iter() {
-            let mut new_state = state.clone();
-            new_state.rotate(rotation);
-            let mut valid = true;
-
-            // Check if move is useless
-            // e.g. R L R' (R' is useless since it undoes R)
-            for idx in (0..path.len()).rev() {
-                if path[idx] == rotation.reverse() {
-                    valid = false;
-                    if path[0] != Rotation::L {
-                        break;
-                    }
-                    break;
-                } else if path[idx].face() != rotation.opposite_face() {
-                    break;
-                }
-            }
-
-            // Check if is repeating states
-            for prev in &mut *prev_states {
-                if prev == &new_state {
-                    valid = false;
-                    break;
-                }
-            }
-
-            if !valid {
+            if prev_states.iter().rposition(|&x| x == new_state).is_some() {
                 continue;
             }
 
-            path.push(rotation);
+            if solution::is_rot_useless(&path, rot) {
+                continue;
+            }
+
+            prev_states.push(new_state);
+            path.push(rot);
             self.second_pass_(new_state, prev_states, path);
             path.pop();
+            prev_states.pop();
         }
-
-        prev_states.pop();
     }
 
     pub fn second_pass(&mut self) {
         self.second_pass_(
-            self.desired_state.clone(),
-            &mut Vec::new(),
+            self.desired_state,
+            &mut vec![self.desired_state],
             &mut Vec::new(),
         );
     }
 
     pub fn solve(&mut self) {
-        // println!("Solving for {:#?}", self);
-
         // --- Edge cases
         if self.move_count == 0u8 {
             if self.initial_state == self.desired_state {
-                self.found_solutions.insert(Solution { seq: vec![] });
+                self.found_solutions.insert(Vec::new());
             }
             return;
         }
 
         if self.move_count == 1u8 {
-            for rotation in Rotation::iter() {
-                let mut state = self.initial_state.clone();
-                state.rotate(rotation);
+            for rot in Rotation::iter() {
+                let state = self.initial_state.rotate(rot);
                 if state == self.desired_state {
-                    self.found_solutions.insert(Solution {
-                        seq: vec![rotation],
-                    });
+                    self.found_solutions.insert(vec![rot]);
                 }
             }
             return;

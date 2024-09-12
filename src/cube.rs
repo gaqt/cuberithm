@@ -390,7 +390,7 @@ const ONE: BUint<3> = BUint::ONE;
 //     result
 // };
 
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct CubeState {
     state: BUint<3>,
 }
@@ -546,304 +546,307 @@ impl CubeState {
         result
     }
 
-    pub fn rotate(&mut self, rotation: Rotation) {
+    pub fn rotate(self, rotation: Rotation) -> Self {
+        let mut new = self;
         match rotation {
             Rotation::U => {
-                let mut up_cells = self.state & UP_MASK;
-                self.state ^= up_cells;
+                let mut up_cells = new.state & UP_MASK;
+                new.state ^= up_cells;
                 up_cells >>= 3;
                 let mut overflow_cells = up_cells & UP_OVERFLOW_MASK;
                 up_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
                 up_cells ^= overflow_cells;
-                self.state ^= up_cells;
+                new.state ^= up_cells;
 
-                let mut side_cells = self.state & UP_SIDE_MASK;
-                self.state ^= side_cells;
+                let mut side_cells = new.state & UP_SIDE_MASK;
+                new.state ^= side_cells;
                 side_cells >>= 3 * 8;
                 let mut side_overflow_cells =
                     side_cells & UP_SIDE_OVERFLOW_MASK;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells <<= 3 * 32;
                 side_cells ^= side_overflow_cells;
-                self.state ^= side_cells;
+                new.state ^= side_cells;
             }
             Rotation::Up => {
-                let mut up_cells = self.state & UP_MASK;
-                self.state ^= up_cells;
+                let mut up_cells = new.state & UP_MASK;
+                new.state ^= up_cells;
                 up_cells <<= 3;
                 let mut overflow_cells = up_cells & UP_OVERFLOW_MASK_REV;
                 up_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
                 up_cells ^= overflow_cells;
-                self.state ^= up_cells;
+                new.state ^= up_cells;
 
-                let mut side_cells = self.state & UP_SIDE_MASK;
-                self.state ^= side_cells;
+                let mut side_cells = new.state & UP_SIDE_MASK;
+                new.state ^= side_cells;
                 side_cells <<= 3 * 8;
                 let mut side_overflow_cells =
                     side_cells & UP_SIDE_OVERFLOW_MASK_REV;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells >>= 3 * 32;
                 side_cells ^= side_overflow_cells;
-                self.state ^= side_cells;
+                new.state ^= side_cells;
             }
             Rotation::L => {
-                let mut left_cells = self.state & LEFT_MASK;
-                self.state ^= left_cells;
+                let mut left_cells = new.state & LEFT_MASK;
+                new.state ^= left_cells;
                 left_cells >>= 3;
                 let mut overflow_cells = left_cells & LEFT_OVERFLOW_MASK;
                 left_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
                 left_cells ^= overflow_cells;
-                self.state ^= left_cells;
+                new.state ^= left_cells;
 
-                let mut side0_cells = self.state & LEFT_SIDE_MASK_0;
-                let mut side1_cells = self.state & LEFT_SIDE_MASK_1;
-                let mut side2_cells = self.state & LEFT_SIDE_MASK_2;
-                let mut side3_cells = self.state & LEFT_SIDE_MASK_3;
+                let mut side0_cells = new.state & LEFT_SIDE_MASK_0;
+                let mut side1_cells = new.state & LEFT_SIDE_MASK_1;
+                let mut side2_cells = new.state & LEFT_SIDE_MASK_2;
+                let mut side3_cells = new.state & LEFT_SIDE_MASK_3;
                 side0_cells <<= 3 * 16;
                 side1_cells <<= 3 * 24;
                 side2_cells >>= 3 * 6;
                 side3_cells >>= 3 * 34;
-                self.state ^= self.state & LEFT_SIDE_MASK_ALL;
-                self.state ^= side0_cells;
-                self.state ^= side1_cells;
-                self.state ^= side2_cells;
-                self.state ^= side3_cells;
+                new.state ^= self.state & LEFT_SIDE_MASK_ALL;
+                new.state ^= side0_cells;
+                new.state ^= side1_cells;
+                new.state ^= side2_cells;
+                new.state ^= side3_cells;
             }
             Rotation::Lp => {
-                let mut left_cells = self.state & LEFT_MASK;
-                self.state ^= left_cells;
+                let mut left_cells = new.state & LEFT_MASK;
+                new.state ^= left_cells;
                 left_cells <<= 3;
                 let mut overflow_cells = left_cells & LEFT_OVERFLOW_MASK_REV;
                 left_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
                 left_cells ^= overflow_cells;
-                self.state ^= left_cells;
+                new.state ^= left_cells;
 
-                let mut side0_cells = self.state & LEFT_SIDE_MASK_0;
-                let mut side1_cells = self.state & LEFT_SIDE_MASK_1;
-                let mut side2_cells = self.state & LEFT_SIDE_MASK_2;
-                let mut side3_cells = self.state & LEFT_SIDE_MASK_3;
+                let mut side0_cells = new.state & LEFT_SIDE_MASK_0;
+                let mut side1_cells = new.state & LEFT_SIDE_MASK_1;
+                let mut side2_cells = new.state & LEFT_SIDE_MASK_2;
+                let mut side3_cells = new.state & LEFT_SIDE_MASK_3;
                 side0_cells <<= 3 * 34;
                 side1_cells >>= 3 * 16;
                 side2_cells >>= 3 * 24;
                 side3_cells <<= 3 * 6;
-                self.state ^= self.state & LEFT_SIDE_MASK_ALL;
-                self.state ^= side0_cells;
-                self.state ^= side1_cells;
-                self.state ^= side2_cells;
-                self.state ^= side3_cells;
+                new.state ^= self.state & LEFT_SIDE_MASK_ALL;
+                new.state ^= side0_cells;
+                new.state ^= side1_cells;
+                new.state ^= side2_cells;
+                new.state ^= side3_cells;
             }
             Rotation::F => {
-                let mut front_cells = self.state & FRONT_MASK;
-                self.state ^= front_cells;
+                let mut front_cells = new.state & FRONT_MASK;
+                new.state ^= front_cells;
                 front_cells >>= 3;
                 let mut overflow_cells = front_cells & FRONT_OVERFLOW_MASK;
                 front_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
                 front_cells ^= overflow_cells;
-                self.state ^= front_cells;
+                new.state ^= front_cells;
 
-                let mut side0_cells = self.state & FRONT_SIDE_MASK_0;
-                let mut side1a_cells = self.state & FRONT_SIDE_MASK_1A;
-                let mut side1b_cells = self.state & FRONT_SIDE_MASK_1B;
-                let mut side2a_cells = self.state & FRONT_SIDE_MASK_2A;
-                let mut side2b_cells = self.state & FRONT_SIDE_MASK_2B;
-                let mut side3_cells = self.state & FRONT_SIDE_MASK_3;
+                let mut side0_cells = new.state & FRONT_SIDE_MASK_0;
+                let mut side1a_cells = new.state & FRONT_SIDE_MASK_1A;
+                let mut side1b_cells = new.state & FRONT_SIDE_MASK_1B;
+                let mut side2a_cells = new.state & FRONT_SIDE_MASK_2A;
+                let mut side2b_cells = new.state & FRONT_SIDE_MASK_2B;
+                let mut side3_cells = new.state & FRONT_SIDE_MASK_3;
                 side0_cells <<= 3 * 23;
                 side1a_cells <<= 3 * 15;
                 side1b_cells <<= 3 * 19;
                 side2a_cells >>= 3 * 29;
                 side2b_cells >>= 3 * 33;
                 side3_cells >>= 3 * 9;
-                self.state ^= self.state & FRONT_SIDE_MASK_ALL;
-                self.state ^= side0_cells;
-                self.state ^= side1a_cells;
-                self.state ^= side1b_cells;
-                self.state ^= side2a_cells;
-                self.state ^= side2b_cells;
-                self.state ^= side3_cells;
+                new.state ^= self.state & FRONT_SIDE_MASK_ALL;
+                new.state ^= side0_cells;
+                new.state ^= side1a_cells;
+                new.state ^= side1b_cells;
+                new.state ^= side2a_cells;
+                new.state ^= side2b_cells;
+                new.state ^= side3_cells;
             }
             Rotation::Fp => {
-                let mut front_cells = self.state & FRONT_MASK;
-                self.state ^= front_cells;
+                let mut front_cells = new.state & FRONT_MASK;
+                new.state ^= front_cells;
                 front_cells <<= 3;
                 let mut overflow_cells = front_cells & FRONT_OVERFLOW_MASK_REV;
                 front_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
                 front_cells ^= overflow_cells;
-                self.state ^= front_cells;
+                new.state ^= front_cells;
 
-                let mut side0_cells = self.state & FRONT_SIDE_MASK_0;
-                let mut side1_cells = self.state & FRONT_SIDE_MASK_1;
-                let mut side2a_cells = self.state & FRONT_SIDE_MASK_2A;
-                let mut side2b_cells = self.state & FRONT_SIDE_MASK_2B;
-                let mut side3a_cells = self.state & FRONT_SIDE_MASK_3A;
-                let mut side3b_cells = self.state & FRONT_SIDE_MASK_3B;
+                let mut side0_cells = new.state & FRONT_SIDE_MASK_0;
+                let mut side1_cells = new.state & FRONT_SIDE_MASK_1;
+                let mut side2a_cells = new.state & FRONT_SIDE_MASK_2A;
+                let mut side2b_cells = new.state & FRONT_SIDE_MASK_2B;
+                let mut side3a_cells = new.state & FRONT_SIDE_MASK_3A;
+                let mut side3b_cells = new.state & FRONT_SIDE_MASK_3B;
                 side0_cells <<= 3 * 9;
                 side1_cells >>= 3 * 23;
                 side2a_cells >>= 3 * 15;
                 side2b_cells >>= 3 * 19;
                 side3a_cells <<= 3 * 29;
                 side3b_cells <<= 3 * 33;
-                self.state ^= self.state & FRONT_SIDE_MASK_ALL;
-                self.state ^= side0_cells;
-                self.state ^= side1_cells;
-                self.state ^= side2a_cells;
-                self.state ^= side2b_cells;
-                self.state ^= side3a_cells;
-                self.state ^= side3b_cells;
+                new.state ^= self.state & FRONT_SIDE_MASK_ALL;
+                new.state ^= side0_cells;
+                new.state ^= side1_cells;
+                new.state ^= side2a_cells;
+                new.state ^= side2b_cells;
+                new.state ^= side3a_cells;
+                new.state ^= side3b_cells;
             }
             Rotation::R => {
-                let mut right_cells = self.state & RIGHT_MASK;
-                self.state ^= right_cells;
+                let mut right_cells = new.state & RIGHT_MASK;
+                new.state ^= right_cells;
                 right_cells >>= 3;
                 let mut overflow_cells = right_cells & RIGHT_OVERFLOW_MASK;
                 right_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
                 right_cells ^= overflow_cells;
-                self.state ^= right_cells;
+                new.state ^= right_cells;
 
-                let mut side0_cells = self.state & RIGHT_SIDE_MASK_0;
-                let mut side1_cells = self.state & RIGHT_SIDE_MASK_1;
-                let mut side2_cells = self.state & RIGHT_SIDE_MASK_2;
-                let mut side3_cells = self.state & RIGHT_SIDE_MASK_3;
+                let mut side0_cells = new.state & RIGHT_SIDE_MASK_0;
+                let mut side1_cells = new.state & RIGHT_SIDE_MASK_1;
+                let mut side2_cells = new.state & RIGHT_SIDE_MASK_2;
+                let mut side3_cells = new.state & RIGHT_SIDE_MASK_3;
                 side0_cells <<= 3 * 30;
                 side1_cells <<= 3 * 10;
                 side2_cells >>= 3 * 24;
                 side3_cells >>= 3 * 16;
-                self.state ^= self.state & RIGHT_SIDE_MASK_ALL;
-                self.state ^= side0_cells;
-                self.state ^= side1_cells;
-                self.state ^= side2_cells;
-                self.state ^= side3_cells;
+                new.state ^= self.state & RIGHT_SIDE_MASK_ALL;
+                new.state ^= side0_cells;
+                new.state ^= side1_cells;
+                new.state ^= side2_cells;
+                new.state ^= side3_cells;
             }
             Rotation::Rp => {
-                let mut right_cells = self.state & RIGHT_MASK;
-                self.state ^= right_cells;
+                let mut right_cells = new.state & RIGHT_MASK;
+                new.state ^= right_cells;
                 right_cells <<= 3;
                 let mut overflow_cells = right_cells & RIGHT_OVERFLOW_MASK_REV;
                 right_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
                 right_cells ^= overflow_cells;
-                self.state ^= right_cells;
+                new.state ^= right_cells;
 
-                let mut side0_cells = self.state & RIGHT_SIDE_MASK_0;
-                let mut side1_cells = self.state & RIGHT_SIDE_MASK_1;
-                let mut side2_cells = self.state & RIGHT_SIDE_MASK_2;
-                let mut side3_cells = self.state & RIGHT_SIDE_MASK_3;
+                let mut side0_cells = new.state & RIGHT_SIDE_MASK_0;
+                let mut side1_cells = new.state & RIGHT_SIDE_MASK_1;
+                let mut side2_cells = new.state & RIGHT_SIDE_MASK_2;
+                let mut side3_cells = new.state & RIGHT_SIDE_MASK_3;
                 side0_cells <<= 3 * 16;
                 side1_cells >>= 3 * 30;
                 side2_cells >>= 3 * 10;
                 side3_cells <<= 3 * 24;
-                self.state ^= self.state & RIGHT_SIDE_MASK_ALL;
-                self.state ^= side0_cells;
-                self.state ^= side1_cells;
-                self.state ^= side2_cells;
-                self.state ^= side3_cells;
+                new.state ^= self.state & RIGHT_SIDE_MASK_ALL;
+                new.state ^= side0_cells;
+                new.state ^= side1_cells;
+                new.state ^= side2_cells;
+                new.state ^= side3_cells;
             }
             Rotation::B => {
-                let mut back_cells = self.state & BACK_MASK;
-                self.state ^= back_cells;
+                let mut back_cells = new.state & BACK_MASK;
+                new.state ^= back_cells;
                 back_cells >>= 3;
                 let mut overflow_cells = back_cells & BACK_OVERFLOW_MASK;
                 back_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
                 back_cells ^= overflow_cells;
-                self.state ^= back_cells;
+                new.state ^= back_cells;
 
-                let mut side0a_cells = self.state & BACK_SIDE_MASK_0A;
-                let mut side0b_cells = self.state & BACK_SIDE_MASK_0B;
-                let mut side1_cells = self.state & BACK_SIDE_MASK_1;
-                let mut side2_cells = self.state & BACK_SIDE_MASK_2;
-                let mut side3a_cells = self.state & BACK_SIDE_MASK_3A;
-                let mut side3b_cells = self.state & BACK_SIDE_MASK_3B;
+                let mut side0a_cells = new.state & BACK_SIDE_MASK_0A;
+                let mut side0b_cells = new.state & BACK_SIDE_MASK_0B;
+                let mut side1_cells = new.state & BACK_SIDE_MASK_1;
+                let mut side2_cells = new.state & BACK_SIDE_MASK_2;
+                let mut side3a_cells = new.state & BACK_SIDE_MASK_3A;
+                let mut side3b_cells = new.state & BACK_SIDE_MASK_3B;
                 side0a_cells <<= 3 * 9;
                 side0b_cells <<= 3 * 5;
                 side1_cells <<= 3 * 33;
                 side2_cells >>= 3 * 15;
                 side3a_cells >>= 3 * 27;
                 side3b_cells >>= 3 * 23;
-                self.state ^= self.state & BACK_SIDE_MASK_ALL;
-                self.state ^= side0a_cells;
-                self.state ^= side0b_cells;
-                self.state ^= side1_cells;
-                self.state ^= side2_cells;
-                self.state ^= side3a_cells;
-                self.state ^= side3b_cells;
+                new.state ^= self.state & BACK_SIDE_MASK_ALL;
+                new.state ^= side0a_cells;
+                new.state ^= side0b_cells;
+                new.state ^= side1_cells;
+                new.state ^= side2_cells;
+                new.state ^= side3a_cells;
+                new.state ^= side3b_cells;
             }
             Rotation::Bp => {
-                let mut back_cells = self.state & BACK_MASK;
-                self.state ^= back_cells;
+                let mut back_cells = new.state & BACK_MASK;
+                new.state ^= back_cells;
                 back_cells <<= 3;
                 let mut overflow_cells = back_cells & BACK_OVERFLOW_MASK_REV;
                 back_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
                 back_cells ^= overflow_cells;
-                self.state ^= back_cells;
+                new.state ^= back_cells;
 
-                let mut side0a_cells = self.state & BACK_SIDE_MASK_0A;
-                let mut side0b_cells = self.state & BACK_SIDE_MASK_0B;
-                let mut side1a_cells = self.state & BACK_SIDE_MASK_1A;
-                let mut side1b_cells = self.state & BACK_SIDE_MASK_1B;
-                let mut side2_cells = self.state & BACK_SIDE_MASK_2;
-                let mut side3_cells = self.state & BACK_SIDE_MASK_3;
+                let mut side0a_cells = new.state & BACK_SIDE_MASK_0A;
+                let mut side0b_cells = new.state & BACK_SIDE_MASK_0B;
+                let mut side1a_cells = new.state & BACK_SIDE_MASK_1A;
+                let mut side1b_cells = new.state & BACK_SIDE_MASK_1B;
+                let mut side2_cells = new.state & BACK_SIDE_MASK_2;
+                let mut side3_cells = new.state & BACK_SIDE_MASK_3;
                 side0a_cells <<= 3 * 27;
                 side0b_cells <<= 3 * 23;
                 side1a_cells >>= 3 * 9;
                 side1b_cells >>= 3 * 5;
                 side2_cells >>= 3 * 33;
                 side3_cells <<= 3 * 15;
-                self.state ^= self.state & BACK_SIDE_MASK_ALL;
-                self.state ^= side0a_cells;
-                self.state ^= side0b_cells;
-                self.state ^= side1a_cells;
-                self.state ^= side1b_cells;
-                self.state ^= side2_cells;
-                self.state ^= side3_cells;
+                new.state ^= self.state & BACK_SIDE_MASK_ALL;
+                new.state ^= side0a_cells;
+                new.state ^= side0b_cells;
+                new.state ^= side1a_cells;
+                new.state ^= side1b_cells;
+                new.state ^= side2_cells;
+                new.state ^= side3_cells;
             }
             Rotation::D => {
-                let mut down_cells = self.state & DOWN_MASK;
-                self.state ^= down_cells;
+                let mut down_cells = new.state & DOWN_MASK;
+                new.state ^= down_cells;
                 down_cells >>= 3;
                 let mut overflow_cells = down_cells & DOWN_OVERFLOW_MASK;
                 down_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
                 down_cells ^= overflow_cells;
-                self.state ^= down_cells;
+                new.state ^= down_cells;
 
-                let mut side_cells = self.state & DOWN_SIDE_MASK;
-                self.state ^= side_cells;
+                let mut side_cells = new.state & DOWN_SIDE_MASK;
+                new.state ^= side_cells;
                 side_cells <<= 3 * 8;
                 let mut side_overflow_cells =
                     side_cells & DOWN_SIDE_OVERFLOW_MASK;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells >>= 3 * 32;
                 side_cells ^= side_overflow_cells;
-                self.state ^= side_cells;
+                new.state ^= side_cells;
             }
             Rotation::Dp => {
-                let mut down_cells = self.state & DOWN_MASK;
-                self.state ^= down_cells;
+                let mut down_cells = new.state & DOWN_MASK;
+                new.state ^= down_cells;
                 down_cells <<= 3;
                 let mut overflow_cells = down_cells & DOWN_OVERFLOW_MASK_REV;
                 down_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
                 down_cells ^= overflow_cells;
-                self.state ^= down_cells;
+                new.state ^= down_cells;
 
-                let mut side_cells = self.state & DOWN_SIDE_MASK;
-                self.state ^= side_cells;
+                let mut side_cells = new.state & DOWN_SIDE_MASK;
+                new.state ^= side_cells;
                 side_cells >>= 3 * 8;
                 let mut side_overflow_cells =
                     side_cells & DOWN_SIDE_OVERFLOW_MASK_REV;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells <<= 3 * 32;
                 side_cells ^= side_overflow_cells;
-                self.state ^= side_cells;
+                new.state ^= side_cells;
             }
         }
+
+        new
     }
 }

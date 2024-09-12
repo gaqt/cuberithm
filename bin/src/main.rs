@@ -1,6 +1,7 @@
 use clap::Parser;
 
-use cuberithm::{cube::CubeState, solution::Solution, solver::Solver};
+use cuberithm::solution;
+use cuberithm::{cube::CubeState, solution::Solution, solver::SolveInstance};
 use std::str::FromStr;
 use std::{collections::BTreeSet, time::Instant};
 
@@ -44,28 +45,27 @@ fn main() {
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
     for i in min_moves..=max_moves {
-        let mut solver =
-            Solver::new(initial_state.clone(), desired_state.clone(), i);
+        let mut solver = SolveInstance::builder()
+            .initial_state(initial_state)
+            .desired_state(desired_state)
+            .move_count(i)
+            .build();
+
         solver.solve();
 
-        for solution in &solver.found_solutions {
-            solutions.insert(solution.clone());
+        for solution in solver.found_solutions {
+            solutions.insert(solution);
         }
 
         first_pass_states = solver.first_pass_states;
         second_pass_states = solver.second_pass_states;
     }
 
-    let solutions_filtered: Vec<&Solution> = solutions
-        .iter()
-        .filter(|it| !it.has_useless_moves())
-        .collect();
-
     let elapsed_time = Instant::now().duration_since(initial_time);
 
-    for (idx, solution) in (0_u16..).zip(solutions_filtered.iter()) {
+    for (idx, solution) in (0_u16..).zip(solutions.iter()) {
         print!("Solution {}: ", idx);
-        for rot in &solution.seq {
+        for rot in solution {
             print!("{} ", rot);
         }
         println!();
@@ -79,5 +79,5 @@ fn main() {
         "States Processed: {}",
         first_pass_states + second_pass_states
     );
-    println!("Solutions Found: {}", solutions_filtered.len());
+    println!("Solutions Found: {}", solutions.len());
 }
