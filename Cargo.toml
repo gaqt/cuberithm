@@ -10,3 +10,4 @@ members = ["bin"]
 strum = "0.25.0"
 strum_macros = "0.25.3"
 bnum = "0.10.0"
+thiserror = "1.0.63"
