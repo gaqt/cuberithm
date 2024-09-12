@@ -82,4 +82,3 @@ fn main() {
     );
     println!("Solutions Found: {}", solutions_filtered.len());
 }
-

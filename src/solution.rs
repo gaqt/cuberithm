@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use crate::rotation::Rotation;
 
-#[derive(Debug, Clone, PartialEq, Eq, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Solution {
     pub seq: Vec<Rotation>,
 }
@@ -23,17 +23,17 @@ impl PartialOrd for Solution {
         }
 
         for idx in 0..shorter.len() {
-            if shorter[idx] < longer[idx] {
-                return Some(Ordering::Less);
-            } else if shorter[idx] > longer[idx] {
-                return Some(Ordering::Greater);
+            match shorter[idx] {
+                x if x < longer[idx] => return Some(Ordering::Less),
+                x if x > longer[idx] => return Some(Ordering::Greater),
+                _ => (),
             }
         }
 
         if shorter.len() == longer.len() {
-            return Some(Ordering::Equal);
+            Some(Ordering::Equal)
         } else {
-            return Some(Ordering::Less);
+            Some(Ordering::Less)
         }
     }
 }
@@ -59,7 +59,8 @@ impl Solution {
                 }
             }
         }
-        return false;
+
+        false
     }
 
     pub fn has_useless_moves(&self) -> bool {
@@ -74,6 +75,7 @@ impl Solution {
                 }
             }
         }
-        return false;
+
+        false
     }
 }
