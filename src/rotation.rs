@@ -92,4 +92,16 @@ impl Rotation {
             Rotation::Dp => Face::D,
         }
     }
+
+    pub fn is_prime(&self) -> bool {
+        match self {
+            Rotation::Up => true,
+            Rotation::Lp => true,
+            Rotation::Fp => true,
+            Rotation::Rp => true,
+            Rotation::Bp => true,
+            Rotation::Dp => true,
+            _ => false
+        }
+    }
 }

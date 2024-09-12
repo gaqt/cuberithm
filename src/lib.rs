@@ -33,8 +33,8 @@ mod tests {
             "GWRWWRRRRYOBOOBWGRWWWWGGWRGGGGRRGYYYYBOYBBBBBBYOYYOOOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::U);
+        let state = ccc();
+        let state = state.rotate(Rotation::U);
         assert_eq!(u_state, state);
     }
 
@@ -44,8 +44,8 @@ mod tests {
             "RRRRWWRWGYOBOOBYYYWWWWGGBBBGGGRRGWGRYBOYBBWRGBYOYYOOOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::Up);
+        let state = ccc();
+        let state = state.rotate(Rotation::Up);
         assert_eq!(up_state, state);
     }
 
@@ -55,8 +55,8 @@ mod tests {
             "YWGBWWORRBBBOOBYOBRWWRGGRGRGGGRRGWRGYBOYBYYYBWYOWYOWOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::L);
+        let state = ccc();
+        let state = state.rotate(Rotation::L);
         assert_eq!(l_state, state);
     }
 
@@ -66,8 +66,8 @@ mod tests {
             "WWGWWWWRRBOYBOOBBBBWWYGGOGRGGGRRGWRGYBRYBRYYRYYOBYOOOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::Lp);
+        let state = ccc();
+        let state = state.rotate(Rotation::Lp);
         assert_eq!(lp_state, state);
     }
 
@@ -77,8 +77,8 @@ mod tests {
             "BBBRWWRRRYOOOOOBBOWGRWGGWWWGGGWRGRRGYBOYBBYYYBYOYYOGRW",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::F);
+        let state = ccc();
+        let state = state.rotate(Rotation::F);
         assert_eq!(f_state, state);
     }
 
@@ -88,8 +88,8 @@ mod tests {
             "WRGRWWRRRYOROOWBBGWWWGGWRGWOGGORGORGYBOYBBYYYBYOYYOBBB",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::Fp);
+        let state = ccc();
+        let state = state.rotate(Rotation::Fp);
         assert_eq!(fp_state, state);
     }
 
@@ -99,8 +99,8 @@ mod tests {
             "RWWRWGRRRYOBOOBBBBWWOWGOWGOGGGGRRGRWRBOWBBGYYBYYYYYOOY",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::R);
+        let state = ccc();
+        let state = state.rotate(Rotation::R);
         assert_eq!(r_state, state);
     }
 
@@ -110,8 +110,8 @@ mod tests {
             "RWYRWYRRYYOBOOBBBBWWGWGWWGRWRGRRGGGGOBOOBBOYYBYWYYGOOR",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::Rp);
+        let state = ccc();
+        let state = state.rotate(Rotation::Rp);
         assert_eq!(rp_state, state);
     }
 
@@ -121,8 +121,8 @@ mod tests {
             "RWGRWWGGGROBROBRBBWWWWGGWGRGGBRRYWROOBYBBYYYYBOYYYOOOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::B);
+        let state = ccc();
+        let state = state.rotate(Rotation::B);
         assert_eq!(b_state, state);
     }
 
@@ -132,8 +132,8 @@ mod tests {
             "RWGRWWYOBOOBYOBBBBWWWWGGWGRGGRRRRWRRYYYYBBYBOGGGYYOOOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::Bp);
+        let state = ccc();
+        let state = state.rotate(Rotation::Bp);
         assert_eq!(bp_state, state);
     }
 
@@ -143,8 +143,8 @@ mod tests {
             "RWGRWWRRRYBOOOBBBBYOBWGGWGRWWWRRGWRGGGGYBBYYYOOOYYOBYO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::D);
+        let state = ccc();
+        let state = state.rotate(Rotation::D);
         assert_eq!(d_state, state);
     }
 
@@ -154,8 +154,8 @@ mod tests {
             "RWGRWWRRRWWWOOBBBBGGGWGGWGRYBORRGWRGYOBYBBYYYOYBOYYOOO",
         ))
         .unwrap();
-        let mut state = ccc().clone();
-        state.rotate(Rotation::Dp);
+        let state = ccc();
+        let state = state.rotate(Rotation::Dp);
         assert_eq!(dp_state, state);
     }
 }
