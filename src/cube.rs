@@ -88,10 +88,10 @@ whereas side moves (R R' L L') require a bit more and
 front moves (F F' B B') require the most.
 */
 
+use std::cell::LazyCell;
 use std::{fmt::Display, ops::Shl};
 
 use bnum::BUint;
-use once_cell::sync::Lazy;
 
 use crate::rotation::Rotation;
 
@@ -374,7 +374,7 @@ const DISPLAYIDX_TO_CELLIDX: [usize; 54] = [
 
 const ONE: BUint<3> = BUint::ONE;
 
-const _CELLIDX_TO_DISPLAYIDX: Lazy<[usize; 50]> = Lazy::new(|| {
+const _CELLIDX_TO_DISPLAYIDX: LazyCell<[usize; 50]> = LazyCell::new(|| {
     let mut result: [usize; 50] = [0; 50];
 
     for cellidx in 1..49 {
