@@ -11,7 +11,7 @@ pub fn has_useless_moves(initial_state: CubeState, solution: &[Rotation]) -> boo
     let mut path = vec![initial_state];
     for &rot in solution {
         let new_state = path.last().unwrap().rotate(rot);
-        if path.iter().rposition(|&x| x == new_state).is_some() {
+        if path.iter().rev().any(|&x| x == new_state) {
             return true;
         }
         path.push(new_state);
@@ -19,7 +19,7 @@ pub fn has_useless_moves(initial_state: CubeState, solution: &[Rotation]) -> boo
 
     for (idx, &rot) in solution.iter().enumerate() {
         if is_rot_useless(&solution[..idx], rot) {
-            return true
+            return true;
         }
     }
 
@@ -27,7 +27,7 @@ pub fn has_useless_moves(initial_state: CubeState, solution: &[Rotation]) -> boo
 }
 
 pub fn is_rot_useless(solution: &[Rotation], rot: Rotation) -> bool {
-    if solution.len() == 0 {
+    if solution.is_empty() {
         return false;
     }
 
@@ -39,7 +39,7 @@ pub fn is_rot_useless(solution: &[Rotation], rot: Rotation) -> bool {
 
     for &rot in solution.iter().rev() {
         if rot.face() != face && rot.opposite_face() != face {
-            break
+            break;
         }
 
         if rot.face() == face {

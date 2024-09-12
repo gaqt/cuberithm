@@ -101,16 +101,13 @@ const CELL_MASK: BUint<3> = BUint::<3>::parse_str_radix("111", 2);
 // -----------------------
 
 // 2**(3*1) + 2**(3*2) + 2**(3*3) + 2**(3*4) + 2**(3*5) + 2**(3*6) + 2**(3*7) + 2**(3*8)
-const UP_MASK: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1249248", 16));
+const UP_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1249248", 16));
 
 // 2**(3*5) + 2**(3*9)
-const UP_OVERFLOW_MASK_REV: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("8008000", 16));
+const UP_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("8008000", 16));
 
 // 2**(3*0) + 2**(3*4)
-const UP_OVERFLOW_MASK: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1001", 16));
+const UP_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1001", 16));
 
 // 2**(3*9) + 2**(3*13) + 2**(3*12) + 2**(3*17) + 2**(3*21) + 2**(3*20) + 2**(3*25) + 2**(3*29) + 2**(3*28) + 2**(3*33) + 2**(3*37) + 2**(3*36)
 const UP_SIDE_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
@@ -119,33 +116,30 @@ const UP_SIDE_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
 ));
 
 // 2**(3*1) + 2**(3*5) + 2**(3*4)
-const UP_SIDE_OVERFLOW_MASK: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("9008", 16));
+const UP_SIDE_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("9008", 16));
 
 // 2**(3*41) + 2**(3*45) + 2**(2*44)
-const UP_SIDE_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("9008000000000000000000000000000000", 16),
-);
+const UP_SIDE_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "9008000000000000000000000000000000",
+    16,
+));
 
 // -----------------------
 // -----------------------
 // -----------------------
 
 // 2**(3*9) + 2**(3*10) + 2**(3*11) + 2**(3*12) + 2**(3*13) + 2**(3*14) + 2**(3*15) + 2**(3*16)
-const LEFT_MASK: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1249248000000", 16));
+const LEFT_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1249248000000", 16));
 
 // 2**(3*13) + 2**(3*17)
 const LEFT_OVERFLOW_MASK_REV: BUint<3> =
     CELL_MASK.mul(BUint::<3>::parse_str_radix("8008000000000", 16));
 
 // 2**(3*8) + 2**(3*12)
-const LEFT_OVERFLOW_MASK: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1001000000", 16));
+const LEFT_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1001000000", 16));
 
 // 2**(3*1) + 2**(3*6) + 2**(3*2)
-const LEFT_SIDE_MASK_0: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("40048", 16));
+const LEFT_SIDE_MASK_0: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("40048", 16));
 
 // 2**(3*17) + 2**(3*22) + 2**(3*18)
 const LEFT_SIDE_MASK_1: BUint<3> =
@@ -173,8 +167,7 @@ const LEFT_SIDE_MASK_ALL: BUint<3> = LEFT_SIDE_MASK_0
 // -----------------------
 
 // 2**(3*17) + 2**(3*18) + 2**(3*19) + 2**(3*20) + 2**(3*21) + 2**(3*22) + 2**(3*23) + 2**(3*24)
-const FRONT_MASK: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1249248000000000000", 16));
+const FRONT_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1249248000000000000", 16));
 
 // 2**(3*21) + 2**(3*25)
 const FRONT_OVERFLOW_MASK_REV: BUint<3> =
@@ -185,8 +178,7 @@ const FRONT_OVERFLOW_MASK: BUint<3> =
     CELL_MASK.mul(BUint::<3>::parse_str_radix("1001000000000000", 16));
 
 // 2**(3*2) + 2**(3*7) + 2**(3*3)
-const FRONT_SIDE_MASK_0: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("200240", 16));
+const FRONT_SIDE_MASK_0: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("200240", 16));
 
 // 2**(3*25) + 2**(3*30) + 2**(3*26)
 const FRONT_SIDE_MASK_1: BUint<3> =
@@ -201,26 +193,26 @@ const FRONT_SIDE_MASK_1B: BUint<3> =
     CELL_MASK.mul(BUint::<3>::parse_str_radix("8000000000000000000", 16));
 
 // 2**(3*45) + 2**(3*41)
-const FRONT_SIDE_MASK_2A: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("8008000000000000000000000000000000", 16),
-);
+const FRONT_SIDE_MASK_2A: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "8008000000000000000000000000000000",
+    16,
+));
 
 // 2**(3*44)
-const FRONT_SIDE_MASK_2B: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("1000000000000000000000000000000000", 16),
-);
+const FRONT_SIDE_MASK_2B: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "1000000000000000000000000000000000",
+    16,
+));
 
 // 2**(3*11) + 2**(3*16) + 2**(3*12)
-const FRONT_SIDE_MASK_3: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1001200000000", 16));
+const FRONT_SIDE_MASK_3: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1001200000000", 16));
 
 // 2**(3*12) + 2**(3*16)
 const FRONT_SIDE_MASK_3A: BUint<3> =
     CELL_MASK.mul(BUint::<3>::parse_str_radix("1001000000000", 16));
 
 // 2**(3**11)
-const FRONT_SIDE_MASK_3B: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("200000000", 16));
+const FRONT_SIDE_MASK_3B: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("200000000", 16));
 
 const FRONT_SIDE_MASK_ALL: BUint<3> = (FRONT_SIDE_MASK_0)
     .bitor(FRONT_SIDE_MASK_1)
@@ -245,8 +237,7 @@ const RIGHT_OVERFLOW_MASK: BUint<3> =
     CELL_MASK.mul(BUint::<3>::parse_str_radix("1001000000000000000000", 16));
 
 // 2**(3*4) + 2**(3*8) + 2**(3*3)
-const RIGHT_SIDE_MASK_0: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1001200", 16));
+const RIGHT_SIDE_MASK_0: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1001200", 16));
 
 // 2**(3*33) + 2**(3*38) + 2**(3*34)
 const RIGHT_SIDE_MASK_1: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
@@ -280,34 +271,31 @@ const BACK_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
 ));
 
 // 2**(3*37) + 2**(3*41)
-const BACK_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("8008000000000000000000000000000", 16),
-);
+const BACK_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "8008000000000000000000000000000",
+    16,
+));
 
 // 2**(3*32) + 2**(3*36)
-const BACK_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("1001000000000000000000000000", 16),
-);
+const BACK_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "1001000000000000000000000000",
+    16,
+));
 
 // 2**(3*5) + 2**(3*1)
-const BACK_SIDE_MASK_0A: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("8008", 16));
+const BACK_SIDE_MASK_0A: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("8008", 16));
 
 // 2**(3*4)
-const BACK_SIDE_MASK_0B: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("1000", 16));
+const BACK_SIDE_MASK_0B: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("1000", 16));
 
 // 2**(3*9) + 2**(3*14) + 2**(3*10)
-const BACK_SIDE_MASK_1: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("40048000000", 16));
+const BACK_SIDE_MASK_1: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("40048000000", 16));
 
 // 2**(3*10) + 2**(3*14)
-const BACK_SIDE_MASK_1A: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("40040000000", 16));
+const BACK_SIDE_MASK_1A: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("40040000000", 16));
 
 // 2**(3*9)
-const BACK_SIDE_MASK_1B: BUint<3> =
-    CELL_MASK.mul(BUint::<3>::parse_str_radix("8000000", 16));
+const BACK_SIDE_MASK_1B: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix("8000000", 16));
 
 // 2**(3*42) + 2**(3*47) + 2**(3*43)
 const BACK_SIDE_MASK_2: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
@@ -343,14 +331,16 @@ const DOWN_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
 ));
 
 // 2**(3*49) + 2**(3*45)
-const DOWN_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("8008000000000000000000000000000000000", 16),
-);
+const DOWN_OVERFLOW_MASK_REV: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "8008000000000000000000000000000000000",
+    16,
+));
 
 // 2**(3*40) + 2**(3*44)
-const DOWN_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("1001000000000000000000000000000000", 16),
-);
+const DOWN_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "1001000000000000000000000000000000",
+    16,
+));
 
 // 2**(3*10) + 2**(3*15) + 2**(3*11) + 2**(3*18) + 2**(3*23) + 2**(3*19) + 2**(3*26) + 2**(3*31) + 2**(3*27) + 2**(3*34) + 2**(3*39) + 2**(3*35)
 const DOWN_SIDE_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
@@ -359,18 +349,19 @@ const DOWN_SIDE_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
 ));
 
 // 2**(3*42) + 2**(3*47) + 2**(3*43)
-const DOWN_SIDE_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(
-    BUint::<3>::parse_str_radix("200240000000000000000000000000000000", 16),
-);
+const DOWN_SIDE_OVERFLOW_MASK: BUint<3> = CELL_MASK.mul(BUint::<3>::parse_str_radix(
+    "200240000000000000000000000000000000",
+    16,
+));
 
 // 2**(3*2) + 2**(3*7) + 2**(3*3)
 const DOWN_SIDE_OVERFLOW_MASK_REV: BUint<3> =
     CELL_MASK.mul(BUint::<3>::parse_str_radix("200240", 16));
 
 const DISPLAYIDX_TO_CELLIDX: [usize; 54] = [
-    2, 7, 3, 6, 0, 8, 1, 5, 4, 10, 15, 11, 14, 0, 16, 9, 13, 12, 18, 23, 19,
-    22, 0, 24, 17, 21, 20, 26, 31, 27, 30, 0, 32, 25, 29, 28, 34, 39, 35, 38,
-    0, 40, 33, 37, 36, 42, 47, 43, 46, 0, 48, 41, 45, 44,
+    2, 7, 3, 6, 0, 8, 1, 5, 4, 10, 15, 11, 14, 0, 16, 9, 13, 12, 18, 23, 19, 22, 0, 24, 17, 21, 20,
+    26, 31, 27, 30, 0, 32, 25, 29, 28, 34, 39, 35, 38, 0, 40, 33, 37, 36, 42, 47, 43, 46, 0, 48,
+    41, 45, 44,
 ];
 
 const ONE: BUint<3> = BUint::ONE;
@@ -474,11 +465,7 @@ impl CubeState {
                 self.cell_char(start + 4),
                 self.cell_char(start + 3)
             ),
-            1 => format!(
-                "{}   {}",
-                self.cell_char(start),
-                self.cell_char(start + 2)
-            ),
+            1 => format!("{}   {}", self.cell_char(start), self.cell_char(start + 2)),
             2 => format!(
                 "{} {} {}",
                 self.cell_char(start),
@@ -562,8 +549,7 @@ impl CubeState {
                 let mut side_cells = new.state & UP_SIDE_MASK;
                 new.state ^= side_cells;
                 side_cells >>= 3 * 8;
-                let mut side_overflow_cells =
-                    side_cells & UP_SIDE_OVERFLOW_MASK;
+                let mut side_overflow_cells = side_cells & UP_SIDE_OVERFLOW_MASK;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells <<= 3 * 32;
                 side_cells ^= side_overflow_cells;
@@ -582,8 +568,7 @@ impl CubeState {
                 let mut side_cells = new.state & UP_SIDE_MASK;
                 new.state ^= side_cells;
                 side_cells <<= 3 * 8;
-                let mut side_overflow_cells =
-                    side_cells & UP_SIDE_OVERFLOW_MASK_REV;
+                let mut side_overflow_cells = side_cells & UP_SIDE_OVERFLOW_MASK_REV;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells >>= 3 * 32;
                 side_cells ^= side_overflow_cells;
@@ -818,8 +803,7 @@ impl CubeState {
                 let mut side_cells = new.state & DOWN_SIDE_MASK;
                 new.state ^= side_cells;
                 side_cells <<= 3 * 8;
-                let mut side_overflow_cells =
-                    side_cells & DOWN_SIDE_OVERFLOW_MASK;
+                let mut side_overflow_cells = side_cells & DOWN_SIDE_OVERFLOW_MASK;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells >>= 3 * 32;
                 side_cells ^= side_overflow_cells;
@@ -838,8 +822,7 @@ impl CubeState {
                 let mut side_cells = new.state & DOWN_SIDE_MASK;
                 new.state ^= side_cells;
                 side_cells >>= 3 * 8;
-                let mut side_overflow_cells =
-                    side_cells & DOWN_SIDE_OVERFLOW_MASK_REV;
+                let mut side_overflow_cells = side_cells & DOWN_SIDE_OVERFLOW_MASK_REV;
                 side_cells ^= side_overflow_cells;
                 side_overflow_cells <<= 3 * 32;
                 side_cells ^= side_overflow_cells;

@@ -3,9 +3,7 @@ use strum_macros::EnumIter;
 
 use crate::face::Face;
 
-#[derive(
-    Clone, Copy, PartialEq, Eq, Hash, EnumIter, Debug, PartialOrd, Ord,
-)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, EnumIter, Debug, PartialOrd, Ord)]
 pub enum Rotation {
     U,
     Up,
@@ -94,14 +92,9 @@ impl Rotation {
     }
 
     pub fn is_prime(&self) -> bool {
-        match self {
-            Rotation::Up => true,
-            Rotation::Lp => true,
-            Rotation::Fp => true,
-            Rotation::Rp => true,
-            Rotation::Bp => true,
-            Rotation::Dp => true,
-            _ => false
-        }
+        matches!(
+            self,
+            Rotation::Up | Rotation::Lp | Rotation::Fp | Rotation::Rp | Rotation::Bp | Rotation::Dp
+        )
     }
 }

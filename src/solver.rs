@@ -51,11 +51,11 @@ impl SolveInstance {
         for rot in Rotation::iter() {
             let new_state = state.rotate(rot);
 
-            if prev_states.iter().rposition(|&x| x == new_state).is_some() {
+            if prev_states.iter().rev().any(|&x| x == new_state) {
                 continue;
             }
 
-            if solution::is_rot_useless(&path, rot) {
+            if solution::is_rot_useless(path, rot) {
                 continue;
             }
 
@@ -121,11 +121,11 @@ impl SolveInstance {
         for rot in Rotation::iter() {
             let new_state = state.rotate(rot);
 
-            if prev_states.iter().rposition(|&x| x == new_state).is_some() {
+            if prev_states.iter().rev().any(|&x| x == new_state) {
                 continue;
             }
 
-            if solution::is_rot_useless(&path, rot) {
+            if solution::is_rot_useless(path, rot) {
                 continue;
             }
 
