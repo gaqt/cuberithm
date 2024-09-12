@@ -88,7 +88,7 @@ whereas side moves (R R' L L') require a bit more and
 front moves (F F' B B') require the most.
 */
 
-use std::cell::LazyCell;
+use std::str::FromStr;
 use std::{fmt::Display, ops::Shl};
 
 use bnum::BUint;
@@ -374,20 +374,20 @@ const DISPLAYIDX_TO_CELLIDX: [usize; 54] = [
 
 const ONE: BUint<3> = BUint::ONE;
 
-const _CELLIDX_TO_DISPLAYIDX: LazyCell<[usize; 50]> = LazyCell::new(|| {
-    let mut result: [usize; 50] = [0; 50];
-
-    for cellidx in 1..49 {
-        for crr in 0..DISPLAYIDX_TO_CELLIDX.len() {
-            if cellidx == DISPLAYIDX_TO_CELLIDX[crr] {
-                result[cellidx] = crr;
-                break;
-            }
-        }
-    }
-
-    result
-});
+// const _CELLIDX_TO_DISPLAYIDX: [usize; 50] = {
+//     let mut result: [usize; 50] = [0; 50];
+//
+//     for cellidx in 1..49 {
+//         for crr in 0..DISPLAYIDX_TO_CELLIDX.len() {
+//             if cellidx == DISPLAYIDX_TO_CELLIDX[crr] {
+//                 result[cellidx] = crr;
+//                 break;
+//             }
+//         }
+//     }
+//
+//     result
+// };
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct CubeState {
@@ -397,6 +397,39 @@ pub struct CubeState {
 impl Display for CubeState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.get_unwrapped_cube_str())
+    }
+}
+
+impl FromStr for CubeState {
+    type Err = ();
+
+    fn from_str(cube_str: &str) -> Result<CubeState, Self::Err> {
+        assert_eq!(cube_str.len(), 54);
+
+        let mut state: BUint<3> = BUint::ZERO;
+        let mut chars = cube_str.chars();
+        for cellidx in DISPLAYIDX_TO_CELLIDX {
+            let color = chars.next().unwrap();
+
+            if cellidx == 0 {
+                continue;
+            }
+
+            let cell: u8 = match color {
+                'N' => 0b000,
+                'W' => 0b001,
+                'O' => 0b010,
+                'G' => 0b011,
+                'R' => 0b100,
+                'B' => 0b101,
+                'Y' => 0b110,
+                _ => return Err(()),
+            };
+
+            state |= (&ONE).shl(3 * cellidx).mul(cell.into());
+        }
+
+        Ok(CubeState { state })
     }
 }
 
@@ -498,43 +531,12 @@ impl CubeState {
         result
     }
 
-    pub fn from_str(cube_str: &String) -> Option<CubeState> {
-        assert_eq!(cube_str.len(), 54);
-
-        let mut state: BUint<3> = BUint::ZERO;
-        let mut chars = cube_str.chars();
-        for idx in 0..54 {
-            let color = chars.next().unwrap();
-
-            let cellidx = DISPLAYIDX_TO_CELLIDX[idx];
-
-            if cellidx == 0 {
-                continue;
-            }
-
-            let cell: u8 = match color {
-                'N' => 0b000,
-                'W' => 0b001,
-                'O' => 0b010,
-                'G' => 0b011,
-                'R' => 0b100,
-                'B' => 0b101,
-                'Y' => 0b110,
-                _ => return None,
-            };
-
-            state |= (&ONE).shl(3 * cellidx).mul(cell.into());
-        }
-
-        Some(CubeState { state })
-    }
-
     pub fn rotate(&mut self, rotation: Rotation) {
         match rotation {
             Rotation::U => {
                 let mut up_cells = self.state & UP_MASK;
                 self.state ^= up_cells;
-                up_cells >>= 3 * 1;
+                up_cells >>= 3;
                 let mut overflow_cells = up_cells & UP_OVERFLOW_MASK;
                 up_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
@@ -554,7 +556,7 @@ impl CubeState {
             Rotation::Up => {
                 let mut up_cells = self.state & UP_MASK;
                 self.state ^= up_cells;
-                up_cells <<= 3 * 1;
+                up_cells <<= 3;
                 let mut overflow_cells = up_cells & UP_OVERFLOW_MASK_REV;
                 up_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
@@ -574,7 +576,7 @@ impl CubeState {
             Rotation::L => {
                 let mut left_cells = self.state & LEFT_MASK;
                 self.state ^= left_cells;
-                left_cells >>= 3 * 1;
+                left_cells >>= 3;
                 let mut overflow_cells = left_cells & LEFT_OVERFLOW_MASK;
                 left_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
@@ -598,7 +600,7 @@ impl CubeState {
             Rotation::Lp => {
                 let mut left_cells = self.state & LEFT_MASK;
                 self.state ^= left_cells;
-                left_cells <<= 3 * 1;
+                left_cells <<= 3;
                 let mut overflow_cells = left_cells & LEFT_OVERFLOW_MASK_REV;
                 left_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
@@ -622,7 +624,7 @@ impl CubeState {
             Rotation::F => {
                 let mut front_cells = self.state & FRONT_MASK;
                 self.state ^= front_cells;
-                front_cells >>= 3 * 1;
+                front_cells >>= 3;
                 let mut overflow_cells = front_cells & FRONT_OVERFLOW_MASK;
                 front_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
@@ -652,7 +654,7 @@ impl CubeState {
             Rotation::Fp => {
                 let mut front_cells = self.state & FRONT_MASK;
                 self.state ^= front_cells;
-                front_cells <<= 3 * 1;
+                front_cells <<= 3;
                 let mut overflow_cells = front_cells & FRONT_OVERFLOW_MASK_REV;
                 front_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
@@ -682,7 +684,7 @@ impl CubeState {
             Rotation::R => {
                 let mut right_cells = self.state & RIGHT_MASK;
                 self.state ^= right_cells;
-                right_cells >>= 3 * 1;
+                right_cells >>= 3;
                 let mut overflow_cells = right_cells & RIGHT_OVERFLOW_MASK;
                 right_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
@@ -706,7 +708,7 @@ impl CubeState {
             Rotation::Rp => {
                 let mut right_cells = self.state & RIGHT_MASK;
                 self.state ^= right_cells;
-                right_cells <<= 3 * 1;
+                right_cells <<= 3;
                 let mut overflow_cells = right_cells & RIGHT_OVERFLOW_MASK_REV;
                 right_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
@@ -730,7 +732,7 @@ impl CubeState {
             Rotation::B => {
                 let mut back_cells = self.state & BACK_MASK;
                 self.state ^= back_cells;
-                back_cells >>= 3 * 1;
+                back_cells >>= 3;
                 let mut overflow_cells = back_cells & BACK_OVERFLOW_MASK;
                 back_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
@@ -760,7 +762,7 @@ impl CubeState {
             Rotation::Bp => {
                 let mut back_cells = self.state & BACK_MASK;
                 self.state ^= back_cells;
-                back_cells <<= 3 * 1;
+                back_cells <<= 3;
                 let mut overflow_cells = back_cells & BACK_OVERFLOW_MASK_REV;
                 back_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
@@ -790,7 +792,7 @@ impl CubeState {
             Rotation::D => {
                 let mut down_cells = self.state & DOWN_MASK;
                 self.state ^= down_cells;
-                down_cells >>= 3 * 1;
+                down_cells >>= 3;
                 let mut overflow_cells = down_cells & DOWN_OVERFLOW_MASK;
                 down_cells ^= overflow_cells;
                 overflow_cells <<= 3 * 4;
@@ -810,7 +812,7 @@ impl CubeState {
             Rotation::Dp => {
                 let mut down_cells = self.state & DOWN_MASK;
                 self.state ^= down_cells;
-                down_cells <<= 3 * 1;
+                down_cells <<= 3;
                 let mut overflow_cells = down_cells & DOWN_OVERFLOW_MASK_REV;
                 down_cells ^= overflow_cells;
                 overflow_cells >>= 3 * 4;
