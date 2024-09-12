@@ -1,6 +1,5 @@
 use clap::Parser;
 
-use cuberithm::solution;
 use cuberithm::{cube::CubeState, solution::Solution, solver::SolveInstance};
 use std::str::FromStr;
 use std::{collections::BTreeSet, time::Instant};
