@@ -1,14 +1,17 @@
 use bon::bon;
+use parking_lot::RwLock;
 use std::collections::HashSet;
+use std::sync::Arc;
+use std::thread;
 use strum::IntoEnumIterator;
 
 use crate::solution;
 use crate::{cube::CubeState, rotation::Rotation, solution::Solution};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SolveInstance {
-    pub middle_states: HashSet<CubeState>,
-    pub found_solutions: HashSet<Solution>,
+    pub middle_states: Arc<RwLock<HashSet<CubeState>>>,
+    pub found_solutions: Arc<RwLock<HashSet<Solution>>>,
     pub initial_state: CubeState,
     pub desired_state: CubeState,
     pub move_count: u8,
@@ -19,8 +22,8 @@ impl SolveInstance {
     #[builder]
     pub fn new(initial_state: CubeState, desired_state: CubeState, move_count: u8) -> Self {
         SolveInstance {
-            middle_states: HashSet::new(),
-            found_solutions: HashSet::new(),
+            middle_states: Arc::new(HashSet::new().into()),
+            found_solutions: Arc::new(HashSet::new().into()),
             initial_state,
             desired_state,
             move_count,
@@ -31,14 +34,14 @@ impl SolveInstance {
     /// Goes through all possible "rotation paths" in a DFS manner,
     /// stops when reaching a solution or path.len() == move_count/2 (meet in the middle)
     ///
-    fn first_pass_(
+    fn first_pass(
         &mut self,
         state: CubeState,
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
         if path.len() as u8 == self.move_count / 2 {
-            self.middle_states.insert(state);
+            self.middle_states.write().insert(state);
             return;
         }
 
@@ -55,18 +58,10 @@ impl SolveInstance {
 
             path.push(rot);
             prev_states.push(new_state);
-            self.first_pass_(new_state, prev_states, path);
+            self.first_pass(new_state, prev_states, path);
             prev_states.pop();
             path.pop();
         }
-    }
-
-    fn first_pass(&mut self) {
-        self.first_pass_(
-            self.initial_state,
-            &mut vec![self.initial_state],
-            &mut Vec::new(),
-        );
     }
 
     ///
@@ -79,15 +74,15 @@ impl SolveInstance {
     /// solving grows exponentially with the move count, recursively halving it should have a
     /// negligible peformance impact, and saves a lot of memory by not having to store the path to
     /// each middle state
-    /// 
-    fn second_pass_(
+    ///
+    fn second_pass(
         &mut self,
         state: CubeState,
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
         if (path.len() as u8) == (self.move_count + 1) / 2 {
-            if !self.middle_states.contains(&state) {
+            if !self.middle_states.read().contains(&state) {
                 return;
             }
 
@@ -97,16 +92,19 @@ impl SolveInstance {
                 .move_count(self.move_count / 2)
                 .build();
 
-            l_solver.solve();
+            l_solver.solve(false);
 
-            let l_solutions = l_solver.found_solutions;
             let right: Vec<Rotation> = path.iter().map(|it| it.reverse()).rev().collect();
+            let l_solutions = Arc::into_inner(l_solver.found_solutions)
+                .unwrap()
+                .into_inner();
+            let crr_solutions = &mut self.found_solutions.write();
 
             for left in l_solutions {
                 let mut union = left;
                 union.append(&mut right.clone());
                 if !solution::has_useless_moves(self.initial_state, &union) {
-                    self.found_solutions.insert(union);
+                    crr_solutions.insert(union.clone());
                 }
             }
 
@@ -126,25 +124,17 @@ impl SolveInstance {
 
             prev_states.push(new_state);
             path.push(rot);
-            self.second_pass_(new_state, prev_states, path);
+            self.second_pass(new_state, prev_states, path);
             path.pop();
             prev_states.pop();
         }
     }
 
-    pub fn second_pass(&mut self) {
-        self.second_pass_(
-            self.desired_state,
-            &mut vec![self.desired_state],
-            &mut Vec::new(),
-        );
-    }
-
-    pub fn solve(&mut self) {
+    pub fn solve(&mut self, multi_threaded: bool) {
         // --- Edge cases
         if self.move_count == 0u8 {
             if self.initial_state == self.desired_state {
-                self.found_solutions.insert(Vec::new());
+                self.found_solutions.write().insert(Vec::new());
             }
             return;
         }
@@ -153,14 +143,56 @@ impl SolveInstance {
             for rot in Rotation::iter() {
                 let state = self.initial_state.rotate(rot);
                 if state == self.desired_state {
-                    self.found_solutions.insert(vec![rot]);
+                    self.found_solutions.write().insert(vec![rot]);
                 }
             }
             return;
         }
         // ---
 
-        self.first_pass();
-        self.second_pass();
+        if !multi_threaded {
+            self.first_pass(
+                self.initial_state,
+                &mut vec![self.initial_state],
+                &mut Vec::new(),
+            );
+            self.second_pass(
+                self.desired_state,
+                &mut vec![self.desired_state],
+                &mut Vec::new(),
+            );
+            return;
+        }
+
+        let handlers = Rotation::iter()
+            .map(|rot| {
+                let mut cloned = self.clone();
+                thread::spawn(move || {
+                    let state = cloned.initial_state.rotate(rot);
+                    cloned.first_pass(
+                        cloned.initial_state,
+                        &mut vec![cloned.initial_state, state],
+                        &mut vec![rot],
+                    );
+                })
+            })
+            .collect::<Vec<_>>();
+
+        handlers.into_iter().for_each(|h| h.join().unwrap());
+
+        let handlers = Rotation::iter().map(|rot| {
+            let mut cloned = self.clone();
+            thread::spawn(move || {
+                let state = cloned.desired_state.rotate(rot);
+                cloned.second_pass(
+                    cloned.desired_state,
+                    &mut vec![cloned.desired_state, state],
+                    &mut vec![rot],
+                );
+            })
+        })
+        .collect::<Vec<_>>();
+
+        handlers.into_iter().for_each(|h| h.join().unwrap());
     }
 }
