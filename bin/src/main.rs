@@ -1,8 +1,13 @@
 use clap::Parser;
 
-use cuberithm::{cube::CubeState, solution::Solution, solver::SolveInstance};
+use cuberithm::solver;
+use cuberithm::{cube::CubeState, solution::Solution};
 use std::str::FromStr;
 use std::{collections::BTreeSet, time::Instant};
+
+#[cfg(unix)]
+#[global_allocator]
+static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 /// Simple algorithm generator for a 3x3x3 Rubik's Cube
 ///
@@ -12,6 +17,7 @@ use std::{collections::BTreeSet, time::Instant};
 /// white -> orange -> green -> red -> blue -> yellow
 /// example: WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY (solved cube)
 ///          WWWWWWWWWOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOYYYYYYYYY (after U move)
+///          WWWWWWWWWOOOOOOOOOGGGGGGGRRRRRRRRBGGBBBBBBRBBYYYYYYYYY (after J-Perm)
 #[derive(Parser)]
 #[command(version, about, verbatim_doc_comment)]
 struct Args {
@@ -24,9 +30,12 @@ struct Args {
     /// Min moves for algorithms to be generated
     #[arg(long)]
     min_moves: u8,
-    /// Max moves for algorithsm to be generated
+    /// Max moves for algorithms to be generated
     #[arg(long)]
     max_moves: u8,
+    // Max difference between shortest algorithm and the longest
+    #[arg(short, long)]
+    threshold: u8,
 }
 
 fn main() {
@@ -36,22 +45,24 @@ fn main() {
     let desired_state = CubeState::from_str(&args.desired_state).unwrap();
     let min_moves = args.min_moves;
     let max_moves = args.max_moves;
+    let threshold = args.threshold;
 
     let initial_time = Instant::now();
 
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
+    let mut since_found = 0;
     for i in min_moves..=max_moves {
-        let mut solver = SolveInstance::builder()
-            .initial_state(initial_state)
-            .desired_state(desired_state)
-            .move_count(i)
-            .build();
+        let found_solutions = solver::solve(initial_state, desired_state, i, true);
 
-        solver.solve();
+        solutions.extend(found_solutions);
 
-        for solution in solver.found_solutions {
-            solutions.insert(solution);
+        if since_found > 0 || !solutions.is_empty() {
+            since_found += 1;
+        }
+
+        if since_found >= threshold {
+            break;
         }
     }
 
