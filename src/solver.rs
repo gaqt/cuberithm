@@ -152,7 +152,7 @@ pub fn solve(
             &mut vec![desired_state],
             &mut Vec::new(),
         );
-        return found_solutions.into_iter().collect::<Vec<_>>();
+        return found_solutions;
     }
 
     let handlers = Rotation::iter()
@@ -163,7 +163,7 @@ pub fn solve(
                 first_pass(
                     move_count,
                     &mut middle_states,
-                    initial_state,
+                    state,
                     &mut vec![initial_state, state],
                     &mut vec![rot],
                 );
@@ -200,7 +200,7 @@ pub fn solve(
                     middle_states,
                     &mut found_solutions,
                     initial_state,
-                    desired_state,
+                    state,
                     &mut vec![desired_state, state],
                     &mut vec![rot],
                 );
