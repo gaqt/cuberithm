@@ -4,6 +4,10 @@ use cuberithm::{cube::CubeState, solution::Solution, solver::SolveInstance};
 use std::str::FromStr;
 use std::{collections::BTreeSet, time::Instant};
 
+#[cfg(unix)]
+#[global_allocator]
+static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 /// Simple algorithm generator for a 3x3x3 Rubik's Cube
 ///
 /// Format of states passed in arguments is a 54 character long string composed of:
