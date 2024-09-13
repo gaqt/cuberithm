@@ -1,8 +1,10 @@
 use clap::Parser;
 
-use cuberithm::{cube::CubeState, solution::Solution, solver::SolveInstance};
+use cuberithm::solver;
+use cuberithm::{cube::CubeState, solution::Solution};
 use std::str::FromStr;
 use std::{collections::BTreeSet, time::Instant};
+
 
 #[cfg(unix)]
 #[global_allocator]
@@ -46,15 +48,7 @@ fn main() {
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
 
     for i in min_moves..=max_moves {
-        let mut solver = SolveInstance::builder()
-            .initial_state(initial_state)
-            .desired_state(desired_state)
-            .move_count(i)
-            .build();
-
-        solver.solve(true);
-
-        let found_solutions = solver.found_solutions;
+        let found_solutions = solver::solve(initial_state, desired_state, i, true);
 
         for solution in found_solutions {
             solutions.insert(solution);
