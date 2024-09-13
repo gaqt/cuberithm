@@ -2,7 +2,6 @@ use clap::Parser;
 
 use cuberithm::{cube::CubeState, solution::Solution, solver::SolveInstance};
 use std::str::FromStr;
-use std::sync::Arc;
 use std::{collections::BTreeSet, time::Instant};
 
 /// Simple algorithm generator for a 3x3x3 Rubik's Cube
@@ -51,7 +50,7 @@ fn main() {
 
         solver.solve(true);
 
-        let found_solutions = Arc::into_inner(solver.found_solutions).unwrap().into_inner();
+        let found_solutions = solver.found_solutions;
 
         for solution in found_solutions {
             solutions.insert(solution);
