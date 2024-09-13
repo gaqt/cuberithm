@@ -12,8 +12,6 @@ pub struct SolveInstance {
     pub initial_state: CubeState,
     pub desired_state: CubeState,
     pub move_count: u8,
-    pub first_pass_states: u64,
-    pub second_pass_states: u64,
 }
 
 #[bon]
@@ -26,23 +24,19 @@ impl SolveInstance {
             initial_state,
             desired_state,
             move_count,
-            first_pass_states: 0,
-            second_pass_states: 0,
         }
     }
 
-    /*
-     * Goes through all possible "rotation paths" in a DFS manner,
-     * stops when reaching a solution or path.len() == move_count/2 (meet in the middle)
-     */
+    ///
+    /// Goes through all possible "rotation paths" in a DFS manner,
+    /// stops when reaching a solution or path.len() == move_count/2 (meet in the middle)
+    ///
     fn first_pass_(
         &mut self,
         state: CubeState,
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
-        self.first_pass_states += 1;
-
         if path.len() as u8 == self.move_count / 2 {
             self.middle_states.insert(state);
             return;
@@ -75,19 +69,23 @@ impl SolveInstance {
         );
     }
 
-    /*
-     * Goes through all possible "rotation paths" in a DFS manner
-     * stops when reaching a solution (doesnt save this time) or
-     * when reaching a previously reached state or path.len() > (max_moves+1)/2 (meet in the middle)
-     */
+    ///
+    /// Goes through all possible "rotation paths" in a DFS manner
+    /// stops when reaching a solution (doesnt save this time) or when reaching
+    /// a previously reached state or path.len() > (max_moves+1)/2 (meet in the middle)
+    ///
+    /// When it reaches a state saved in the middle states, it generates a new solver from the
+    /// initial state to the current state, with a halved move count. Since the complexity of
+    /// solving grows exponentially with the move count, recursively halving it should have a
+    /// negligible peformance impact, and saves a lot of memory by not having to store the path to
+    /// each middle state
+    /// 
     fn second_pass_(
         &mut self,
         state: CubeState,
         prev_states: &mut Vec<CubeState>,
         path: &mut Vec<Rotation>,
     ) {
-        self.second_pass_states += 1;
-
         if (path.len() as u8) == (self.move_count + 1) / 2 {
             if !self.middle_states.contains(&state) {
                 return;
@@ -111,9 +109,6 @@ impl SolveInstance {
                     self.found_solutions.insert(union);
                 }
             }
-
-            self.first_pass_states += l_solver.first_pass_states;
-            self.second_pass_states += l_solver.second_pass_states;
 
             return;
         }

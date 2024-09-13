@@ -37,8 +37,6 @@ fn main() {
     let min_moves = args.min_moves;
     let max_moves = args.max_moves;
 
-    let mut first_pass_states: u64 = 0;
-    let mut second_pass_states: u64 = 0;
     let initial_time = Instant::now();
 
     let mut solutions: BTreeSet<Solution> = BTreeSet::new();
@@ -55,9 +53,6 @@ fn main() {
         for solution in solver.found_solutions {
             solutions.insert(solution);
         }
-
-        first_pass_states = solver.first_pass_states;
-        second_pass_states = solver.second_pass_states;
     }
 
     let elapsed_time = Instant::now().duration_since(initial_time);
@@ -72,11 +67,5 @@ fn main() {
     println!("\nDone.");
 
     println!("Elapsed Time: {:.3}s", elapsed_time.as_secs_f64());
-    println!("First Pass States: {}", first_pass_states);
-    println!("Second Pass States: {}", second_pass_states);
-    println!(
-        "States Processed: {}",
-        first_pass_states + second_pass_states
-    );
     println!("Solutions Found: {}", solutions.len());
 }
