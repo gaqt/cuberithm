@@ -10,12 +10,16 @@ mod tests {
 
     use crate::{cube::CubeState, rotation::Rotation};
 
+fjksdjfksfj
+
     fn _solved_cube() -> CubeState {
         CubeState::from_str(&String::from(
             "WWWWWWWWWOOOOOOOOOGGGGGGGGGRRRRRRRRRBBBBBBBBBYYYYYYYYY",
         ))
         .unwrap()
     }
+
+jskdfjskjfdksj
 
     /*
      * Cube in a cube in a cube
